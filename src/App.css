@@ -1,0 +1,16 @@
+/* Main App Shell Styles */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Page transitions wrapper */
+.page-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

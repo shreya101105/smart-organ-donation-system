@@ -1,0 +1,269 @@
+/* Authentication & Registration Form Styling */
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background-color: var(--homepage-bg-color);
+  background-image: var(--homepage-bg-image);
+  background-size: cover;
+  background-position: center;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 40px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.auth-card h2 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+.auth-subtitle {
+  color: #777777;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+}
+.dark-mode .auth-subtitle {
+  color: #aaaaaa;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+/* Password eye toggle */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  padding-right: 40px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  opacity: 0.7;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+}
+
+.auth-extra-links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+}
+
+.auth-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.auth-link {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* Registration Form specific */
+.register-wrapper {
+  min-height: 100vh;
+  padding: 60px 24px;
+  background-color: var(--homepage-bg-color);
+  background-image: var(--homepage-bg-image);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 800px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 40px;
+  transition: var(--transition);
+}
+
+/* Role Selector Grid */
+.role-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.role-select-box {
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  cursor: pointer;
+  text-align: center;
+  transition: var(--transition);
+  background-color: var(--bg-color);
+}
+
+.role-select-box:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.role-select-box.selected {
+  border-color: var(--primary-color);
+  background-color: rgba(0, 123, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.role-select-icon {
+  font-size: 2.2rem;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+}
+
+.role-select-box.selected .role-select-icon {
+  color: var(--primary-color);
+}
+
+.role-select-box h4 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.role-select-box p {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Dynamic registration layouts */
+.dynamic-form-container {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid var(--border-color);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  text-align: left;
+}
+
+.form-grid-full {
+  grid-column: span 2;
+}
+
+/* File Upload input custom styling */
+.file-upload-input {
+  border: 2px dashed var(--border-color);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background-color: var(--bg-color);
+}
+.file-upload-input:hover {
+  border-color: var(--primary-color);
+}
+.file-upload-icon {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-bottom: 6px;
+}
+
+/* Checkbox array grids for organs */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 10px;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+/* OTP Flow Styles */
+.otp-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.otp-box {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: var(--transition);
+}
+
+.otp-box:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-grid-full {
+    grid-column: span 1;
+  }
+  .role-selection-grid {
+    grid-template-columns: 1fr;
+  }
+  .checkbox-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
