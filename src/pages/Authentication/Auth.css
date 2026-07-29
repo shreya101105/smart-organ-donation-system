@@ -56,22 +56,22 @@
   font-size: 1.6rem !important;
   color: var(--primary-color) !important;
   flex-shrink: 0 !important;
-  filter: drop-shadow(0 0 8px var(--glow-color)) !important;
-  transition: color 0.3s ease, filter 0.3s ease !important;
+  filter: none !important;
+  transition: color 0.3s ease !important;
 }
 
 /* Light Mode specific Heart adjustment */
 :root:not(.dark-mode) .auth-header .navbar-logo-icon,
 :root:not(.dark-mode) .auth-header .navbar-logo svg {
   color: #dc2626 !important;
-  filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.2)) !important;
+  filter: none !important;
 }
 
 /* Dark Mode specific Heart adjustment */
 :root.dark-mode .auth-header .navbar-logo-icon,
 :root.dark-mode .auth-header .navbar-logo svg {
   color: #ef4444 !important;
-  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5)) !important;
+  filter: none !important;
 }
 
 .auth-header .navbar-logo span {
@@ -103,20 +103,28 @@
   align-items: center;
 }
 
-/* Clear & Sharp Icons ONLY inside input-with-icon */
+/* Sharp, Clear & Non-Blurry Icons ONLY inside input-with-icon */
 .input-with-icon .input-icon,
-.input-with-icon>svg {
+.input-with-icon>svg,
+.input-with-icon i {
   position: absolute;
   left: 16px;
   font-size: 1.15rem;
-  opacity: 0.95 !important;
+  opacity: 0.9 !important;
   color: var(--text-color);
   pointer-events: none;
   transition: var(--transition-fast);
+
+  /* Clear Blur & Drop-shadows */
   filter: none !important;
   -webkit-filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+
+  /* Crisp Edge Rendering */
   transform: translateZ(0);
   backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .input-with-icon .form-input,
@@ -142,11 +150,13 @@
   justify-content: center;
   padding: 0;
   z-index: 2;
+  filter: none !important;
 }
 
 .password-toggle-btn svg {
   position: static !important;
   font-size: 1.1rem;
+  filter: none !important;
 }
 
 /* Remember Me & Forgot Password Stacked */
@@ -267,6 +277,7 @@
   margin: 0 !important;
   position: static !important;
   flex-shrink: 0;
+  filter: none !important;
 }
 
 /* Role Selection Grid */
@@ -323,6 +334,7 @@
   color: var(--text-color);
   transition: var(--transition-fast);
   filter: none !important;
+  -webkit-filter: none !important;
 }
 
 .role-card.selected .role-icon {

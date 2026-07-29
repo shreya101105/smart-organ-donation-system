@@ -17,7 +17,7 @@ import './Auth.css';
 
 // SVG Google Icon
 const GoogleIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+  <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0, filter: 'none', WebkitFilter: 'none' }}>
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -25,7 +25,6 @@ const GoogleIcon = () => (
   </svg>
 );
 
-// Helper function to decode JWT token payload from Google
 const parseJwt = (token) => {
   try {
     const base64Url = token.split('.')[1];
@@ -44,7 +43,6 @@ const parseJwt = (token) => {
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_TIME_MS = 2 * 60 * 1000;
-// Replace this with your Google Client ID from Google Cloud Console
 const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
 
 export const Login = () => {
@@ -64,16 +62,34 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Lockout States
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [lockoutRemaining, setLockoutRemaining] = useState(0);
 
-  // 1. Dynamically Load Google GSI Script inside Login.jsx
+  // STRICT INLINE STYLE FIX FOR ICONS
+  const iconWrapperStyle = {
+    position: 'absolute',
+    left: '16px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    zIndex: 99,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'none',
+    background: 'transparent',
+    filter: 'none',
+    WebkitFilter: 'none',
+    backdropFilter: 'none',
+    WebkitBackdropFilter: 'none',
+    boxShadow: 'none',
+    color: '#4b5563',
+    fontSize: '1.1rem'
+  };
+
   useEffect(() => {
     const loadGoogleScript = () => {
       if (document.getElementById('google-gsi-script')) return;
-
       const script = document.createElement('script');
       script.id = 'google-gsi-script';
       script.src = 'https://accounts.google.com/gsi/client';
@@ -81,11 +97,9 @@ export const Login = () => {
       script.defer = true;
       document.body.appendChild(script);
     };
-
     loadGoogleScript();
   }, []);
 
-  // 2. Handle Google Login Trigger (Opens PC Account Selector)
   const handleOpenGoogle = () => {
     if (isLocked) {
       setError(`Account locked. Please wait ${formatTime(lockoutRemaining)} before signing in.`);
@@ -101,7 +115,6 @@ export const Login = () => {
     setGoogleLoading(true);
 
     try {
-      // Initialize Google Client with account selection prompt
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: (response) => {
@@ -125,10 +138,8 @@ export const Login = () => {
         auto_select: false,
       });
 
-      // Prompt Google to open native account selector popup
       window.google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Fallback token client if Prompt is blocked or dismissed
           const client = window.google.accounts.oauth2.initTokenClient({
             client_id: GOOGLE_CLIENT_ID,
             scope: 'email profile',
@@ -285,7 +296,9 @@ export const Login = () => {
         <motion.div className="auth-card" initial={{ opacity: 1, y: 0 }} animate={{ opacity: 1, y: 0 }}>
           <div className="auth-header">
             <div className="navbar-logo" style={{ justifyContent: 'center', marginBottom: '14px' }}>
-              <FaHeartbeat className="navbar-logo-icon clear-icon" />
+              <div style={{ display: 'inline-flex', marginRight: '8px', filter: 'none' }}>
+                <FaHeartbeat style={{ filter: 'none', color: '#10b981' }} />
+              </div>
               <span>NovaLife AI Portal</span>
             </div>
             <h2 className="auth-title">NovaLife AI</h2>
@@ -299,7 +312,7 @@ export const Login = () => {
 
           {isLocked && (
             <div className="alert alert-warning lockout-alert">
-              <FaExclamationTriangle className="clear-icon" style={{ marginRight: '8px', flexShrink: 0 }} />
+              <FaExclamationTriangle style={{ marginRight: '8px', flexShrink: 0, filter: 'none' }} />
               <div>
                 <strong>Account Temporarily Locked</strong>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem' }}>
@@ -312,12 +325,16 @@ export const Login = () => {
           {error && !isLocked && <div className="alert alert-danger">{error}</div>}
 
           <form onSubmit={handleLogin}>
+            {/* ROLES INPUT */}
             <div className="floating-input-group">
               <label className="form-label">Roles</label>
-              <div className="input-with-icon">
-                <FaUserMd className="input-icon clear-icon" />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <div style={iconWrapperStyle}>
+                  <FaUserMd />
+                </div>
                 <select
                   className="form-select"
+                  style={{ paddingLeft: '48px' }}
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   disabled={loading || googleLoading || isLocked}
@@ -326,20 +343,23 @@ export const Login = () => {
                   <option value="Doctor">Doctor</option>
                   <option value="Hospital">Hospital</option>
                   <option value="Laboratory">Laboratory</option>
-                  <option value="Admin">Admin</option>
                   <option value="Goverment">Goverment</option>
                   <option value="NGO">NGO</option>
                 </select>
               </div>
             </div>
 
+            {/* EMAIL INPUT */}
             <div className="floating-input-group">
               <label className="form-label">Email Credentials</label>
-              <div className="input-with-icon">
-                <FaEnvelope className="input-icon clear-icon" />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <div style={iconWrapperStyle}>
+                  <FaEnvelope />
+                </div>
                 <input
                   type="email"
                   className="form-input"
+                  style={{ paddingLeft: '48px' }}
                   placeholder="e.g. nurse@system.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -349,27 +369,43 @@ export const Login = () => {
               </div>
             </div>
 
+            {/* PASSWORD INPUT */}
             <div className="floating-input-group">
               <label className="form-label">Password</label>
-              <div className="input-with-icon">
-                <FaLock className="input-icon clear-icon" />
+              <div style={{ position: 'relative', width: '100%' }}>
+                <div style={iconWrapperStyle}>
+                  <FaLock />
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="form-input"
+                  style={{ paddingLeft: '48px', paddingRight: '48px' }}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading || googleLoading || isLocked}
                   required
-                  style={{ paddingRight: '48px' }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLocked}
-                  className="password-toggle-btn"
+                  style={{
+                    position: 'absolute',
+                    right: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#4b5563',
+                    cursor: 'pointer',
+                    zIndex: 99,
+                    display: 'flex',
+                    alignItems: 'center',
+                    filter: 'none'
+                  }}
                 >
-                  {showPassword ? <FaEyeSlash className="clear-icon" /> : <FaEye className="clear-icon" />}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
             </div>
@@ -402,7 +438,9 @@ export const Login = () => {
               ) : isLocked ? (
                 `Locked (${formatTime(lockoutRemaining)})`
               ) : (
-                <><FaSignInAlt className="clear-icon" style={{ marginRight: '8px' }} /> Login</>
+                <>
+                  <FaSignInAlt style={{ marginRight: '8px', filter: 'none' }} /> Login
+                </>
               )}
             </button>
           </form>
@@ -411,7 +449,6 @@ export const Login = () => {
             <span>OR</span>
           </div>
 
-          {/* Continue with Google Button */}
           <button
             type="button"
             className="btn-google-standard"
