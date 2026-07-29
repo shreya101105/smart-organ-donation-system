@@ -58,15 +58,27 @@ export const Register = () => {
       filter: 'blur(0px)',
       transition: {
         duration: 0.6,
-        ease: [0.16, 1, 0.3, 1],
-        staggerChildren: 0.08
+        ease: [0.16, 1, 0.3, 1]
       }
     }
   };
 
+  const stepVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.3,
+        staggerChildren: 0.08
+      }
+    },
+    exit: { opacity: 0, x: -20, transition: { duration: 0.2 } }
+  };
+
   const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    hidden: { opacity: 1, y: 0 },
+    visible: { opacity: 1, y: 0 }
   };
 
   // Generic success handler for any form submit
@@ -118,7 +130,7 @@ export const Register = () => {
           style={{ width: '100%', padding: '45px 40px' }}
         >
           {/* Header Branding */}
-          <motion.div className="auth-header" variants={itemVariants}>
+          <div className="auth-header">
             <div
               className="navbar-logo"
               style={{
@@ -139,10 +151,10 @@ export const Register = () => {
             </div>
             <h2 className="auth-title">NovaLife AI</h2>
             <p className="auth-subtitle">Clinical Diagnostics & Registry Portal</p>
-          </motion.div>
+          </div>
 
           {/* Tab Bar Toggle */}
-          <motion.div className="auth-tab-bar" variants={itemVariants}>
+          <div className="auth-tab-bar">
             <button
               className="auth-tab"
               onClick={() => navigate(`/login?role=${selectedRole}`)}
@@ -150,20 +162,19 @@ export const Register = () => {
               Sign In
             </button>
             <button className="auth-tab active">Sign Up</button>
-          </motion.div>
+          </div>
 
           <AnimatePresence mode="wait">
             {/* STEP 1: ROLE SELECTION */}
             {step === 1 && (
               <motion.div
                 key="step1"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
+                variants={stepVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
               >
-                <motion.h3
-                  variants={itemVariants}
+                <h3
                   style={{
                     fontSize: '1.25rem',
                     fontWeight: '700',
@@ -172,12 +183,11 @@ export const Register = () => {
                   }}
                 >
                   Select Registration Roles
-                </motion.h3>
+                </h3>
 
                 {/* ROLES WITH FLEX-WRAP */}
-                <motion.div
+                <div
                   className="role-grid"
-                  variants={itemVariants}
                   style={{
                     display: 'flex',
                     flexWrap: 'wrap',
@@ -220,11 +230,10 @@ export const Register = () => {
                       </div>
                     );
                   })}
-                </motion.div>
+                </div>
 
                 {/* TERMS & CONDITIONS CHECKBOX */}
-                <motion.div
-                  variants={itemVariants}
+                <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -257,7 +266,7 @@ export const Register = () => {
                       Privacy Policy
                     </Link>
                   </label>
-                </motion.div>
+                </div>
 
                 {/* Continue Action Button */}
                 <motion.button
@@ -277,7 +286,6 @@ export const Register = () => {
                   }}
                   onClick={() => acceptedTerms && setStep(2)}
                   disabled={!acceptedTerms}
-                  variants={itemVariants}
                   whileTap={acceptedTerms ? { scale: 0.98 } : {}}
                 >
                   Continue as {selectedRole} <FaArrowRight />
@@ -345,16 +353,15 @@ export const Register = () => {
           </AnimatePresence>
 
           {/* Footer Navigation */}
-          <motion.div
+          <div
             className="auth-footer"
-            variants={itemVariants}
             style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.9rem' }}
           >
             Already registered?{' '}
             <Link to={`/login?role=${selectedRole}`} className="auth-link">
               Sign In Here
             </Link>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </div>

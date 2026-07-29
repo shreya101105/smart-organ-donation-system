@@ -211,7 +211,7 @@ export const PatientRegistration = ({ onSuccess }) => {
           type="text"
           name="name"
           className="form-input"
-          placeholder="e.g. Falguni Khade"
+          placeholder="e.g. John Doe"
           value={formData.name}
           onChange={handleChange}
           style={getInputStyle(errors.name)}

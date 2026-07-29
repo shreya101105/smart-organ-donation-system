@@ -4,7 +4,7 @@ import { FaCloudUploadAlt, FaSave, FaEye, FaEyeSlash, FaExclamationCircle } from
 import { AuthContext } from '../../context/AuthContext';
 import { validateRegistrationForm } from '../../utils/validators';
 
-export const NGORegistration = () => {
+export const NGORegistration = ({ onSuccess }) => {
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -71,7 +71,7 @@ export const NGORegistration = () => {
         color: '#1e293b'
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
         setErrorMsg('');
@@ -130,7 +130,7 @@ export const NGORegistration = () => {
         }
 
         // 9. External Validator Integration
-        const submissionData = { ...formData, name: formData.ngoName };
+        const submissionData = { ...formData, name: formData.ngoName, role: 'NGO' };
         const validation = validateRegistrationForm ? validateRegistrationForm(submissionData, 'NGO') : { isValid: true, errors: {} };
         const mergedErrors = { ...validation.errors, ...customErrors };
 
@@ -141,15 +141,30 @@ export const NGORegistration = () => {
         }
 
         setLoading(true);
-        setTimeout(() => {
-            const result = register ? register(submissionData, 'NGO') : { success: true };
-            setLoading(false);
-            if (result?.success) {
-                navigate('/ngo/dashboard');
-            } else {
-                setErrorMsg(result?.message || 'Registration failed. Please try again.');
+        try {
+            let result = { success: true };
+
+            if (register) {
+                result = await register(submissionData, 'NGO');
             }
-        }, 1000);
+
+            if (result && result.success === false) {
+                setErrorMsg(result.message || 'Registration failed. Please try again.');
+                setLoading(false);
+                return;
+            }
+
+            // Execute parent callback if provided, else route directly
+            if (typeof onSuccess === 'function') {
+                await onSuccess(submissionData);
+            } else {
+                navigate('/ngo/dashboard');
+            }
+        } catch (err) {
+            setErrorMsg(err.message || 'An unexpected error occurred during registration.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

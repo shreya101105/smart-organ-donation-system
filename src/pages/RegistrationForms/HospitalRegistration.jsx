@@ -5,7 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { HOSPITAL_TYPES } from '../../utils/constants';
 import { validateRegistrationForm } from '../../utils/validators';
 
-export const HospitalRegistration = () => {
+export const HospitalRegistration = ({ onSuccess }) => {
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -74,7 +74,7 @@ export const HospitalRegistration = () => {
     color: '#1e293b'
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
     setErrorMsg('');
@@ -141,7 +141,7 @@ export const HospitalRegistration = () => {
     }
 
     // 10. External Validator Integration
-    const submissionData = { ...formData, name: formData.hospitalName };
+    const submissionData = { ...formData, name: formData.hospitalName, role: 'Hospital' };
     const validation = validateRegistrationForm ? validateRegistrationForm(submissionData, 'Hospital') : { isValid: true, errors: {} };
     const mergedErrors = { ...validation.errors, ...customErrors };
 
@@ -152,21 +152,36 @@ export const HospitalRegistration = () => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      const result = register ? register(submissionData, 'Hospital') : { success: true };
-      setLoading(false);
-      if (result?.success) {
-        navigate('/hospital/dashboard');
-      } else {
-        setErrorMsg(result?.message || 'Registration failed. Please try again.');
+    try {
+      let result = { success: true };
+
+      if (register) {
+        result = await register(submissionData, 'Hospital');
       }
-    }, 1000);
+
+      if (result && result.success === false) {
+        setErrorMsg(result.message || 'Registration failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Execute parent callback if provided, else route directly
+      if (typeof onSuccess === 'function') {
+        await onSuccess(submissionData);
+      } else {
+        navigate('/hospital/dashboard');
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'An unexpected error occurred during registration.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      noValidate /* Bypasses default HTML tooltips */
+      noValidate
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -334,7 +349,9 @@ export const HospitalRegistration = () => {
           style={getInputStyle(errors.hospitalType)}
         >
           <option value="">Select Type</option>
-          {HOSPITAL_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+          {HOSPITAL_TYPES && HOSPITAL_TYPES.map((type) => (
+            <option key={type} value={type}>{type}</option>
+          ))}
         </select>
         {errors.hospitalType && (
           <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>

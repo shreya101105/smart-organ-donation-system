@@ -4,7 +4,7 @@ import { FaCloudUploadAlt, FaSave, FaEye, FaEyeSlash, FaExclamationCircle } from
 import { AuthContext } from '../../context/AuthContext';
 import { validateRegistrationForm } from '../../utils/validators';
 
-export const LaboratoryRegistration = () => {
+export const LaboratoryRegistration = ({ onSuccess }) => {
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -70,7 +70,7 @@ export const LaboratoryRegistration = () => {
     color: '#1e293b'
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
     setErrorMsg('');
@@ -126,7 +126,7 @@ export const LaboratoryRegistration = () => {
     }
 
     // 9. External Validator Integration
-    const submissionData = { ...formData, name: formData.laboratoryName };
+    const submissionData = { ...formData, name: formData.laboratoryName, role: 'Laboratory' };
     const validation = validateRegistrationForm ? validateRegistrationForm(submissionData, 'Laboratory') : { isValid: true, errors: {} };
     const mergedErrors = { ...validation.errors, ...customErrors };
 
@@ -137,21 +137,36 @@ export const LaboratoryRegistration = () => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      const result = register ? register(submissionData, 'Laboratory') : { success: true };
-      setLoading(false);
-      if (result?.success) {
-        navigate('/laboratory/dashboard');
-      } else {
-        setErrorMsg(result?.message || 'Registration failed. Please try again.');
+    try {
+      let result = { success: true };
+
+      if (register) {
+        result = await register(submissionData, 'Laboratory');
       }
-    }, 1000);
+
+      if (result && result.success === false) {
+        setErrorMsg(result.message || 'Registration failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Execute parent callback if provided, else route directly
+      if (typeof onSuccess === 'function') {
+        await onSuccess(submissionData);
+      } else {
+        navigate('/laboratory/dashboard');
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'An unexpected error occurred during registration.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      noValidate /* Prevents browser native tooltips */
+      noValidate
       style={{
         display: 'flex',
         flexDirection: 'column',
