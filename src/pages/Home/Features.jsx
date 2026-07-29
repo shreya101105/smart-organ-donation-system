@@ -27,19 +27,27 @@ export const Features = () => {
   return (
     <section className="home-section" id="features" style={{ position: 'relative', overflow: 'hidden' }}>
       <div className="container">
-        
+
         {/* Section Header */}
-        <motion.div 
+        <motion.div
           className="section-header"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
+          style={{
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto'
+          }}
         >
-          <h2 style={{ fontSize: '2.4rem', fontWeight: '800', letterSpacing: '-0.03em', marginBottom: '14px' }}>
+          <h2 style={{ fontSize: '2.4rem', fontWeight: '800', letterSpacing: '-0.03em', marginBottom: '14px', textAlign: 'center', width: '100%' }}>
             Multi-Organ Intelligent Diagnostic Pipeline
           </h2>
-          <p style={{ color: 'var(--muted-color)', maxWidth: '700px', margin: '0 auto', fontSize: '1.02rem' }}>
+          <p style={{ color: 'var(--muted-color)', maxWidth: '700px', margin: '0 auto', fontSize: '1.02rem', textAlign: 'center', width: '100%' }}>
             Three dedicated convolutional neural networks calibrated to pinpoint clinical indicators on radiographic scans.
           </p>
         </motion.div>
@@ -47,30 +55,30 @@ export const Features = () => {
         {/* Features Grids */}
         <div className="why-grid" style={{ marginTop: '50px' }}>
           {pipelineCards.map((card, idx) => (
-            <motion.div 
+            <motion.div
               key={card.title}
               className="card glass-card"
               initial={{ opacity: 0, y: 40, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ 
-                y: -8, 
+              whileHover={{
+                y: -8,
                 borderColor: card.color,
                 boxShadow: `0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px ${card.color}25`
               }}
               style={{ padding: '36px 30px', textAlign: 'left', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '20px' }}
             >
-              <div 
-                className="feature-icon-wrapper" 
-                style={{ 
-                  width: '56px', 
-                  height: '56px', 
-                  borderRadius: 'var(--radius-sm)', 
-                  background: `${card.color}15`, 
-                  color: card.color, 
-                  display: 'flex', 
-                  alignItems: 'center', 
+              <div
+                className="feature-icon-wrapper"
+                style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: 'var(--radius-sm)',
+                  background: `${card.color}15`,
+                  color: card.color,
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '1.8rem'
                 }}
@@ -90,6 +98,23 @@ export const Features = () => {
         </div>
 
       </div>
+
+      <style>{`
+        #features .section-header {
+          text-align: center !important;
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+
+        #features .section-header h2,
+        #features .section-header p {
+          text-align: center !important;
+          margin-left: auto !important;
+          margin-right: auto !important;
+        }
+      `}</style>
     </section>
   );
 };
