@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -17,10 +17,12 @@ import HospitalRegistration from '../RegistrationForms/HospitalRegistration';
 import NgoRegistration from '../RegistrationForms/NGORegistration';
 import GovernmentRegistration from '../RegistrationForms/GovernmentRegistration';
 import LaboratoryRegistration from '../RegistrationForms/LaboratoryRegistration';
+import { AuthContext } from '../../context/AuthContext';
 
 export const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const authContext = useContext(AuthContext);
 
   const queryParams = new URLSearchParams(location.search);
   const initialRole = queryParams.get('role') || 'Patient';
@@ -46,7 +48,7 @@ export const Register = () => {
     }
   }, [location]);
 
-  // Framer Motion animation presets matching Login.jsx
+  // Framer Motion animation presets
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.95, y: 30, filter: 'blur(8px)' },
     visible: {
@@ -67,20 +69,35 @@ export const Register = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
   };
 
+  // Generic success handler for any form submit
+  const handleRegistrationSuccess = async (formData) => {
+    try {
+      if (authContext && authContext.register) {
+        await authContext.register(formData || {}, selectedRole);
+      }
+    } catch (err) {
+      // Fallback redirection without breaking flow
+    } finally {
+      const targetPath = `/${selectedRole.toLowerCase()}/dashboard`;
+      navigate(targetPath);
+    }
+  };
+
   const renderForm = () => {
+    const props = { onSuccess: handleRegistrationSuccess, role: selectedRole };
     switch (selectedRole) {
       case 'Patient':
-        return <PatientRegistration />;
+        return <PatientRegistration {...props} />;
       case 'Hospital':
-        return <HospitalRegistration />;
+        return <HospitalRegistration {...props} />;
       case 'Laboratory':
-        return <LaboratoryRegistration />;
+        return <LaboratoryRegistration {...props} />;
       case 'NGO':
-        return <NgoRegistration />;
+        return <NgoRegistration {...props} />;
       case 'Government':
-        return <GovernmentRegistration />;
+        return <GovernmentRegistration {...props} />;
       default:
-        return <PatientRegistration />;
+        return <PatientRegistration {...props} />;
     }
   };
 
@@ -91,7 +108,7 @@ export const Register = () => {
       <div className="floating-blob blob-secondary"></div>
       <div className="bg-mesh"></div>
 
-      {/* BADA BOX: Increased Max-Width to 850px for spacious layout */}
+      {/* Main Container */}
       <div className="auth-container" style={{ maxWidth: '850px', width: '100%' }}>
         <motion.div
           className="auth-card"
@@ -126,7 +143,10 @@ export const Register = () => {
 
           {/* Tab Bar Toggle */}
           <motion.div className="auth-tab-bar" variants={itemVariants}>
-            <button className="auth-tab" onClick={() => navigate('/login')}>
+            <button
+              className="auth-tab"
+              onClick={() => navigate(`/login?role=${selectedRole}`)}
+            >
               Sign In
             </button>
             <button className="auth-tab active">Sign Up</button>
@@ -154,15 +174,15 @@ export const Register = () => {
                   Select Registration Roles
                 </motion.h3>
 
-                {/* ROLES IN 1 WIDE HORIZONTAL LINE */}
+                {/* ROLES WITH FLEX-WRAP */}
                 <motion.div
                   className="role-grid"
                   variants={itemVariants}
                   style={{
                     display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    gap: '14px',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    gap: '12px',
                     marginBottom: '25px'
                   }}
                 >
@@ -174,18 +194,25 @@ export const Register = () => {
                         className={`role-card ${isSelected ? 'selected' : ''}`}
                         onClick={() => setSelectedRole(r.id)}
                         style={{
-                          flex: 1,
-                          padding: '22px 10px',
-                          borderRadius: 'var(--radius-md)'
+                          flex: '1 1 120px',
+                          minWidth: '110px',
+                          padding: '20px 10px',
+                          borderRadius: 'var(--radius-md)',
+                          cursor: 'pointer',
+                          textAlign: 'center'
                         }}
                       >
-                        <div className="role-icon" style={{ fontSize: '1.8rem' }}>{r.icon}</div>
+                        <div className="role-icon" style={{ fontSize: '1.8rem' }}>
+                          {r.icon}
+                        </div>
                         <span
                           className="role-name"
                           style={{
                             fontSize: '0.85rem',
                             fontWeight: '600',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            display: 'block',
+                            marginTop: '6px'
                           }}
                         >
                           {r.label}
@@ -205,7 +232,7 @@ export const Register = () => {
                     gap: '10px',
                     marginBottom: '25px',
                     fontSize: '0.875rem',
-                    color: 'var(--text-muted, #a1a1aa)'
+                    color: 'var(--text-muted)'
                   }}
                 >
                   <input
@@ -318,7 +345,11 @@ export const Register = () => {
           </AnimatePresence>
 
           {/* Footer Navigation */}
-          <motion.div className="auth-footer" variants={itemVariants}>
+          <motion.div
+            className="auth-footer"
+            variants={itemVariants}
+            style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.9rem' }}
+          >
             Already registered?{' '}
             <Link to={`/login?role=${selectedRole}`} className="auth-link">
               Sign In Here
