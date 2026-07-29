@@ -230,7 +230,7 @@ export const PatientRegistration = ({ onSuccess }) => {
           type="email"
           name="email"
           className="form-input"
-          placeholder="e.g. falgunikhade2005@gmail.com"
+          placeholder="e.g. johndoe5@gmail.com"
           value={formData.email}
           onChange={handleChange}
           style={getInputStyle(errors.email)}
