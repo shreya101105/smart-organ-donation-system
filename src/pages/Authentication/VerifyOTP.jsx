@@ -15,31 +15,33 @@ export const VerifyOTP = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
+
+  // Array of refs for input navigation
+  const inputRefs = useRef([]);
 
   // Auto focus first box
   useEffect(() => {
-    if (inputRefs[0].current) {
-      inputRefs[0].current.focus();
+    if (inputRefs.current[0]) {
+      inputRefs.current[0].focus();
     }
   }, []);
 
   const handleChange = (index, value) => {
-    if (isNaN(value)) return; // Allow numbers only
+    if (isNaN(value)) return; // Numbers only
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1); // Only keep last typed digit
     setOtp(newOtp);
 
     // Focus next box
-    if (value && index < 5 && inputRefs[index + 1].current) {
-      inputRefs[index + 1].current.focus();
+    if (value && index < 5 && inputRefs.current[index + 1]) {
+      inputRefs.current[index + 1].focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
     // Focus back on Backspace
-    if (e.key === 'Backspace' && !otp[index] && index > 0 && inputRefs[index - 1].current) {
-      inputRefs[index - 1].current.focus();
+    if (e.key === 'Backspace' && !otp[index] && index > 0 && inputRefs.current[index - 1]) {
+      inputRefs.current[index - 1].focus();
     }
   };
 
@@ -66,66 +68,109 @@ export const VerifyOTP = () => {
   };
 
   return (
-    <div className="auth-wrapper">
-      <motion.div 
-        className="auth-card"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div style={{ fontSize: '2.5rem', color: 'var(--primary-color)', marginBottom: '16px' }}>
-          <FaShieldAlt />
-        </div>
-        <h2>Verify OTP</h2>
-        <p className="auth-subtitle">
-          Enter the verification code sent to <strong style={{ color: 'var(--text-color)' }}>{email}</strong>
-        </p>
+    <div className="auth-page">
+      {/* Background Ambience / Blobs */}
+      <div className="floating-blob blob-primary"></div>
+      <div className="floating-blob blob-secondary"></div>
+      <div className="bg-mesh"></div>
 
-        {otpState && (
-          <div style={{ 
-            fontSize: '0.8rem', 
-            background: 'rgba(40,167,69,0.1)', 
-            border: '1px solid rgba(40,167,69,0.2)',
-            color: '#28a745',
-            padding: '8px', 
-            borderRadius: '6px',
-            marginBottom: '20px'
-          }}>
-            [MOCK SERVICE] Current active OTP is: <strong>{otpState.otp}</strong>
+      <div className="auth-container">
+        <motion.div
+          className="auth-card"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div style={{ fontSize: '2.5rem', color: 'var(--primary-color)', marginBottom: '16px' }}>
+            <FaShieldAlt />
           </div>
-        )}
+          <h2 className="auth-title" style={{ fontSize: '1.8rem' }}>Verify OTP</h2>
+          <p className="auth-subtitle" style={{ marginBottom: '20px' }}>
+            Enter the verification code sent to <strong style={{ color: 'var(--text-color)' }}>{email}</strong>
+          </p>
 
-        {error && <div className="alert alert-danger">{error}</div>}
+          {otpState && (
+            <div
+              style={{
+                fontSize: '0.8rem',
+                background: 'rgba(40,167,69,0.1)',
+                border: '1px solid rgba(40,167,69,0.2)',
+                color: '#28a745',
+                padding: '8px',
+                borderRadius: '6px',
+                marginBottom: '20px'
+              }}
+            >
+              [MOCK SERVICE] Current active OTP is: <strong>{otpState.otp}</strong>
+            </div>
+          )}
 
-        <form onSubmit={handleVerify}>
-          <div className="otp-container">
-            {otp.map((digit, idx) => (
-              <input
-                key={idx}
-                ref={inputRefs[idx]}
-                type="text"
-                className="otp-box"
-                maxLength="1"
-                value={digit}
-                onChange={(e) => handleChange(idx, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(idx, e)}
-                disabled={loading}
-                required
-              />
-            ))}
+          {error && <div className="alert alert-danger" style={{ marginBottom: '20px' }}>{error}</div>}
+
+          <form onSubmit={handleVerify}>
+            {/* OTP BOX CONTAINER */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '28px'
+              }}
+            >
+              {otp.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={(el) => (inputRefs.current[idx] = el)}
+                  type="text"
+                  maxLength="1"
+                  value={digit}
+                  onChange={(e) => handleChange(idx, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(idx, e)}
+                  disabled={loading}
+                  required
+                  style={{
+                    width: '42px',               // Box Width chota kar diya
+                    height: '46px',              // Box Height chota kar diya
+                    textAlign: 'center',
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    color: 'var(--text-color)',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s, box-shadow 0.2s'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'var(--primary-color)';
+                    e.target.style.boxShadow = '0 0 8px rgba(37, 99, 235, 0.3)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'var(--border-color)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+              ))}
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-shimmer"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              disabled={loading}
+            >
+              {loading ? 'Verifying...' : <><FaCheck /> Verify & Proceed</>}
+            </button>
+          </form>
+
+          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
+            <Link to="/forgot-password" className="auth-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FaArrowLeft /> Resend OTP
+            </Link>
           </div>
-
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Verifying...' : <><FaCheck /> Verify & Proceed</>}
-          </button>
-        </form>
-
-        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
-          <Link to="/forgot-password" className="auth-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FaArrowLeft /> Resend OTP
-          </Link>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 };

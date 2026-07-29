@@ -1,14 +1,21 @@
 /* Homepage Specific Styles - Premium Glassmorphism */
 
 .home-page {
-  background-color: var(--homepage-bg-color);
-  background-image: var(--homepage-bg-image);
+  background-color: var(--homepage-bg-color, transparent);
+  background-image: var(--homepage-bg-image, none);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
   min-height: 100vh;
   position: relative;
   overflow: hidden;
+  transition: background-image 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+/* Dark Mode fallback override if CSS variables are not bound */
+.dark-mode .home-page {
+  background-image: var(--homepage-bg-image, url('../../components/images/bgv.png'));
 }
 
 /* 1. Navbar */
@@ -21,7 +28,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: var(--transition-smooth);
+  transition: var(--transition-smooth, all 0.3s ease);
 }
 
 .navbar.shrink {
@@ -40,7 +47,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-heading);
+  font-family: var(--font-heading, sans-serif);
   font-size: 1.5rem;
   font-weight: 800;
   color: var(--text-color);
@@ -88,7 +95,7 @@
   width: 0;
   height: 2px;
   background-color: var(--primary-color);
-  transition: var(--transition-fast);
+  transition: var(--transition-fast, all 0.2s ease);
 }
 
 .navbar-link:hover::after {
@@ -117,7 +124,7 @@
   align-items: center;
   padding: 8px;
   border-radius: 50%;
-  transition: var(--transition-fast);
+  transition: var(--transition-fast, all 0.2s ease);
   border: 1px solid var(--border-color);
 }
 
@@ -172,7 +179,7 @@
 
 .hero-image-wrapper {
   position: relative;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg, 16px);
   padding: 8px;
   background: linear-gradient(135deg, var(--primary-color) 0%, transparent 100%);
 }
@@ -180,7 +187,7 @@
 .hero-image {
   max-width: 100%;
   height: auto;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg, 16px);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   display: block;
 }
@@ -208,7 +215,7 @@
 }
 
 .about-image-wrapper {
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg, 16px);
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
@@ -217,7 +224,7 @@
   width: 100%;
   height: auto;
   display: block;
-  transition: var(--transition-smooth);
+  transition: var(--transition-smooth, all 0.3s ease);
 }
 
 .about-image-wrapper:hover img {
@@ -253,7 +260,7 @@
   color: var(--primary-color);
   margin-bottom: 24px;
   display: inline-flex;
-  transition: var(--transition-smooth);
+  transition: var(--transition-smooth, all 0.3s ease);
 }
 
 .why-card:hover .why-icon,
@@ -263,13 +270,13 @@
   color: var(--secondary-color);
 }
 
-/* 6. Action panels (Disease prediction / Organ donation previews) */
+/* 6. Action panels */
 .home-predict-card,
 .home-donate-card {
   background: var(--card-bg);
   backdrop-filter: blur(18px);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg, 16px);
   padding: 60px;
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -358,7 +365,7 @@
 .compat-result {
   margin-top: 30px;
   padding: 24px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 12px);
   background: rgba(37, 99, 235, 0.05);
   border: 1px solid rgba(37, 99, 235, 0.2);
   text-align: center;
@@ -371,58 +378,7 @@
   margin: 14px 0;
 }
 
-/* 10. Specialists Registry list */
-.specialists-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-}
-
-.specialist-card {
-  padding: 0;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-}
-
-.specialist-img-container {
-  height: 280px;
-  overflow: hidden;
-  position: relative;
-}
-
-.specialist-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: var(--transition-smooth);
-}
-
-.specialist-card:hover .specialist-img {
-  transform: scale(1.05);
-}
-
-.specialist-info {
-  padding: 28px;
-}
-
-.specialist-info h4 {
-  font-size: 1.25rem;
-  margin-bottom: 6px;
-}
-
-.specialist-role {
-  color: var(--primary-color);
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.specialist-hosp {
-  font-size: 0.85rem;
-  opacity: 0.7;
-}
-
-/* 11. FAQ List accordion */
+/* 10. FAQ List accordion */
 .faq-list {
   max-width: 800px;
   margin: 0 auto;
@@ -432,7 +388,7 @@
 }
 
 .faq-item {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 12px);
 }
 
 .faq-question {
@@ -450,113 +406,7 @@
   opacity: 0.85;
 }
 
-/* 12. Testimonial grids */
-.testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-}
-
-.testimonial-card {
-  padding: 40px 30px;
-}
-
-.testimonial-text {
-  font-style: italic;
-  margin-bottom: 24px;
-  opacity: 0.85;
-}
-
-/* 13. News articles */
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-}
-
-.news-card {
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
-.news-meta {
-  font-size: 0.8rem;
-  opacity: 0.6;
-  margin-bottom: 12px;
-}
-
-.news-title {
-  font-size: 1.2rem;
-  margin-bottom: 14px;
-}
-
-.news-desc {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  margin-bottom: 24px;
-}
-
-/* 14. Contact section */
-.contact-grid {
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 50px;
-}
-
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  text-align: left;
-}
-
-.contact-item {
-  display: flex;
-  gap: 20px;
-}
-
-.contact-icon {
-  font-size: 2rem;
-  color: var(--primary-color);
-}
-
-.contact-form-card {
-  padding: 40px;
-}
-
-/* 15. Call to action bottom banner */
-.cta-section {
-  padding: 100px 0;
-  text-align: center;
-  position: relative;
-}
-
-.cta-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.cta-container h2 {
-  font-size: 2.8rem;
-  margin-bottom: 20px;
-}
-
-.cta-container p {
-  font-size: 1.15rem;
-  opacity: 0.9;
-  margin-bottom: 40px;
-}
-
-.cta-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-}
-
-/* 16. Footer */
+/* 11. Footer */
 .footer {
   background-color: var(--footer-color);
   backdrop-filter: blur(18px);
@@ -615,9 +465,6 @@
   .why-grid,
   .features-grid,
   .services-grid,
-  .specialists-grid,
-  .testimonials-grid,
-  .news-grid,
   .footer-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -632,12 +479,8 @@
   .why-grid,
   .features-grid,
   .services-grid,
-  .specialists-grid,
-  .testimonials-grid,
-  .news-grid,
   .footer-grid,
   .about-grid,
-  .contact-grid,
   .hero-grid {
     grid-template-columns: 1fr;
   }
@@ -648,10 +491,7 @@
     padding: 30px;
   }
 
-  .how-steps {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
+  .how-steps,
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }

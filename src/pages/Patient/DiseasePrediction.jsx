@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { FaLaptopMedical, FaChevronRight, FaHeartbeat } from 'react-icons/fa';
-import { ORGANS } from '../../utils/constants';
+import { FaLaptopMedical, FaHeartbeat } from 'react-icons/fa';
 import { simulateDiseasePrediction } from '../../utils/helper';
+
+const THREE_ORGANS = ['Kidney', 'Liver', 'Heart'];
 
 export const DiseasePrediction = () => {
   const [organ, setOrgan] = useState('Kidney');
@@ -11,8 +12,7 @@ export const DiseasePrediction = () => {
     bilirubin: '0.8',
     alt: '25',
     bloodPressure: '120/80',
-    heartRate: '72',
-    glucose: '90'
+    heartRate: '72'
   });
 
   const [result, setResult] = useState(null);
@@ -25,7 +25,7 @@ export const DiseasePrediction = () => {
   const handleRunPrediction = (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     setTimeout(() => {
       const pred = simulateDiseasePrediction(metrics, organ);
       setResult(pred);
@@ -61,13 +61,13 @@ export const DiseasePrediction = () => {
           <form onSubmit={handleRunPrediction}>
             <div className="form-group">
               <label className="form-label">Select Organ to Analyze</label>
-              <select 
-                className="form-select" 
-                value={organ} 
+              <select
+                className="form-select"
+                value={organ}
                 onChange={(e) => { setOrgan(e.target.value); setResult(null); }}
                 disabled={loading}
               >
-                {ORGANS.slice(0, 4).map(org => <option key={org} value={org}>{org}</option>)}
+                {THREE_ORGANS.map(org => <option key={org} value={org}>{org}</option>)}
               </select>
             </div>
 
@@ -75,12 +75,12 @@ export const DiseasePrediction = () => {
               <>
                 <div className="form-group">
                   <label className="form-label">Serum Creatinine (mg/dL)</label>
-                  <input 
-                    type="number" 
-                    step="0.01" 
-                    name="creatinine" 
-                    className="form-input" 
-                    value={metrics.creatinine} 
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="creatinine"
+                    className="form-input"
+                    value={metrics.creatinine}
                     onChange={handleInputChange}
                     disabled={loading}
                     required
@@ -88,11 +88,11 @@ export const DiseasePrediction = () => {
                 </div>
                 <div className="form-group">
                   <label className="form-label">eGFR (mL/min/1.73m²)</label>
-                  <input 
-                    type="number" 
-                    name="egfr" 
-                    className="form-input" 
-                    value={metrics.egfr} 
+                  <input
+                    type="number"
+                    name="egfr"
+                    className="form-input"
+                    value={metrics.egfr}
                     onChange={handleInputChange}
                     disabled={loading}
                     required
@@ -105,12 +105,12 @@ export const DiseasePrediction = () => {
               <>
                 <div className="form-group">
                   <label className="form-label">Total Bilirubin (mg/dL)</label>
-                  <input 
-                    type="number" 
-                    step="0.1" 
-                    name="bilirubin" 
-                    className="form-input" 
-                    value={metrics.bilirubin} 
+                  <input
+                    type="number"
+                    step="0.1"
+                    name="bilirubin"
+                    className="form-input"
+                    value={metrics.bilirubin}
                     onChange={handleInputChange}
                     disabled={loading}
                     required
@@ -118,11 +118,11 @@ export const DiseasePrediction = () => {
                 </div>
                 <div className="form-group">
                   <label className="form-label">ALT / SGPT (U/L)</label>
-                  <input 
-                    type="number" 
-                    name="alt" 
-                    className="form-input" 
-                    value={metrics.alt} 
+                  <input
+                    type="number"
+                    name="alt"
+                    className="form-input"
+                    value={metrics.alt}
                     onChange={handleInputChange}
                     disabled={loading}
                     required
@@ -135,12 +135,12 @@ export const DiseasePrediction = () => {
               <>
                 <div className="form-group">
                   <label className="form-label">Blood Pressure (Systolic/Diastolic)</label>
-                  <input 
-                    type="text" 
-                    name="bloodPressure" 
-                    className="form-input" 
-                    placeholder="e.g. 120/80" 
-                    value={metrics.bloodPressure} 
+                  <input
+                    type="text"
+                    name="bloodPressure"
+                    className="form-input"
+                    placeholder="e.g. 120/80"
+                    value={metrics.bloodPressure}
                     onChange={handleInputChange}
                     disabled={loading}
                     required
@@ -148,32 +148,17 @@ export const DiseasePrediction = () => {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Heart Rate (BPM)</label>
-                  <input 
-                    type="number" 
-                    name="heartRate" 
-                    className="form-input" 
-                    value={metrics.heartRate} 
+                  <input
+                    type="number"
+                    name="heartRate"
+                    className="form-input"
+                    value={metrics.heartRate}
                     onChange={handleInputChange}
                     disabled={loading}
                     required
                   />
                 </div>
               </>
-            )}
-
-            {organ === 'Pancreas' && (
-              <div className="form-group">
-                <label className="form-label">Fasting Blood Glucose (mg/dL)</label>
-                <input 
-                  type="number" 
-                  name="glucose" 
-                  className="form-input" 
-                  value={metrics.glucose} 
-                  onChange={handleInputChange}
-                  disabled={loading}
-                  required
-                />
-              </div>
             )}
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }} disabled={loading}>
@@ -213,4 +198,5 @@ export const DiseasePrediction = () => {
     </div>
   );
 };
+
 export default DiseasePrediction;

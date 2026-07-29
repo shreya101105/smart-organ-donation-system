@@ -41,7 +41,6 @@ export const DoctorRegistration = () => {
     setErrors({});
     setErrorMsg('');
 
-    // Mapping key name to "name" for standard validator logic
     const submissionData = { ...formData, name: formData.doctorName };
 
     const validation = validateRegistrationForm(submissionData, 'Doctor');
@@ -63,15 +62,19 @@ export const DoctorRegistration = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form-grid">
-      {errorMsg && <div className="form-grid-full alert alert-danger">{errorMsg}</div>}
+    <form
+      onSubmit={handleSubmit}
+      className="form-grid"
+      style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '600px', margin: '0 auto' }}
+    >
+      {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 
       <div className="form-group">
         <label className="form-label">Doctor Name *</label>
-        <input 
-          type="text" 
+        <input
+          type="text"
           name="doctorName"
-          className="form-input" 
+          className="form-input"
           placeholder="e.g. Dr. Robert Carter"
           value={formData.doctorName}
           onChange={handleChange}
@@ -82,10 +85,11 @@ export const DoctorRegistration = () => {
 
       <div className="form-group">
         <label className="form-label">Email Address *</label>
-        <input 
-          type="email" 
+        <input
+          type="email"
           name="email"
-          className="form-input" 
+          className="form-input"
+          placeholder="e.g. doctor@hospital.com"
           value={formData.email}
           onChange={handleChange}
           required
@@ -95,10 +99,10 @@ export const DoctorRegistration = () => {
 
       <div className="form-group">
         <label className="form-label">Password *</label>
-        <input 
-          type="password" 
+        <input
+          type="password"
           name="password"
-          className="form-input" 
+          className="form-input"
           placeholder="Min 6 characters"
           value={formData.password}
           onChange={handleChange}
@@ -109,8 +113,8 @@ export const DoctorRegistration = () => {
 
       <div className="form-group">
         <label className="form-label">Specialization *</label>
-        <select 
-          name="specialization" 
+        <select
+          name="specialization"
           className="form-select"
           value={formData.specialization}
           onChange={handleChange}
@@ -124,10 +128,10 @@ export const DoctorRegistration = () => {
 
       <div className="form-group">
         <label className="form-label">Academic Qualification *</label>
-        <input 
-          type="text" 
+        <input
+          type="text"
           name="qualification"
-          className="form-input" 
+          className="form-input"
           placeholder="e.g. MD, DM (Nephrology)"
           value={formData.qualification}
           onChange={handleChange}
@@ -138,8 +142,8 @@ export const DoctorRegistration = () => {
 
       <div className="form-group">
         <label className="form-label">Years of Experience *</label>
-        <select 
-          name="experience" 
+        <select
+          name="experience"
           className="form-select"
           value={formData.experience}
           onChange={handleChange}
@@ -153,10 +157,10 @@ export const DoctorRegistration = () => {
 
       <div className="form-group">
         <label className="form-label">Medical Registration Number *</label>
-        <input 
-          type="text" 
+        <input
+          type="text"
           name="medRegNumber"
-          className="form-input" 
+          className="form-input"
           placeholder="State Medical Council No."
           value={formData.medRegNumber}
           onChange={handleChange}
@@ -167,10 +171,10 @@ export const DoctorRegistration = () => {
 
       <div className="form-group">
         <label className="form-label">Affiliated Hospital *</label>
-        <input 
-          type="text" 
+        <input
+          type="text"
           name="hospital"
-          className="form-input" 
+          className="form-input"
           placeholder="Hospital name"
           value={formData.hospital}
           onChange={handleChange}
@@ -179,29 +183,29 @@ export const DoctorRegistration = () => {
         {errors.hospital && <span style={{ color: '#dc3545', fontSize: '0.75rem' }}>{errors.hospital}</span>}
       </div>
 
-      <div className="form-group form-grid-full">
+      <div className="form-group">
         <label className="form-label">Upload Medical License / Certificate *</label>
         <label className="file-upload-input">
           <FaCloudUploadAlt className="file-upload-icon" />
           <span style={{ fontSize: '0.8rem', display: 'block' }}>
             {formData.licenseFile ? formData.licenseFile : 'Upload physician registration certificate (PDF/Image)'}
           </span>
-          <input 
-            type="file" 
-            name="licenseFile" 
-            accept=".pdf,.png,.jpg,.jpeg" 
-            style={{ display: 'none' }} 
+          <input
+            type="file"
+            name="licenseFile"
+            accept=".pdf,.png,.jpg,.jpeg"
+            style={{ display: 'none' }}
             onChange={handleFileUpload}
             required
           />
         </label>
       </div>
 
-      <button 
-        type="submit" 
-        className="btn btn-primary form-grid-full" 
+      <button
+        type="submit"
+        className="btn btn-primary"
         disabled={loading}
-        style={{ marginTop: '20px' }}
+        style={{ marginTop: '10px', width: '100%' }}
       >
         {loading ? 'Submitting registration...' : <><FaSave /> Register as Medical Doctor</>}
       </button>

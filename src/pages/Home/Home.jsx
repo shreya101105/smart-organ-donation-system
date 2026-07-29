@@ -6,14 +6,14 @@ import DiseasePrediction from './DiseasePrediction';
 import OrganDonation from './OrganDonation';
 import HowItWorks from './HowItWorks';
 import Features from './Features';
-import Services from './Services';
-import Statistics from './Statistics';
-import OrganCompatibility from './OrganCompatibility';
-import Testimonials from './Testimonials';
+// import Services from './Services';
+// import Statistics from './Statistics';
+// import OrganCompatibility from './OrganCompatibility';
+// import Testimonials from './Testimonials';
 import FAQ from './FAQ';
-import LatestNews from './LatestNews';
-import Contact from './Contact';
-import CallToAction from './CallToAction';
+// import LatestNews from './LatestNews';
+// import Contact from './Contact';
+// import CallToAction from './CallToAction';
 import Footer from '../../components/Footer/Footer';
 import './Home.css';
 
@@ -27,14 +27,14 @@ export const Home = () => {
       <OrganDonation />
       <HowItWorks />
       <Features />
-      <Services />
-      <Statistics />
+      {/* <Services /> */}
+      {/* <Statistics />
       <OrganCompatibility />
-      <Testimonials />
+      <Testimonials /> */}
       <FAQ />
-      <LatestNews />
+      {/* <LatestNews />
       <Contact />
-      <CallToAction />
+      <CallToAction /> */}
       <Footer />
     </div>
   );

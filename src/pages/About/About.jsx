@@ -5,6 +5,10 @@ import Card from '../../components/Cards/Card';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 
+// Corrected relative import paths (../../ reaches src/)
+import bgiImage from '../../components/images/bgi.png';
+import bgvImage from '../../components/images/bgv.png';
+
 export const About = () => {
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -20,7 +24,7 @@ export const About = () => {
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="about-page">
       <Navbar />
 
       {/* Floating lights background blobs */}
@@ -34,15 +38,15 @@ export const About = () => {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.8 }}
-            style={{ 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              gap: '8px', 
-              background: 'rgba(0, 229, 255, 0.1)', 
-              color: 'var(--primary-color)', 
-              padding: '6px 14px', 
-              borderRadius: '20px', 
-              fontSize: '0.85rem', 
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(0, 229, 255, 0.1)',
+              color: 'var(--primary-color)',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
               fontWeight: '700',
               marginBottom: '24px',
               border: '1px solid rgba(0, 229, 255, 0.2)'
@@ -50,7 +54,7 @@ export const About = () => {
           >
             <FaHeartbeat /> ABOUT OUR PLATFORM
           </motion.div>
-          
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -59,7 +63,7 @@ export const About = () => {
           >
             Redefining Organ Matching with <span style={{ background: 'linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Intelligent Clinical AI</span>
           </motion.h1>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -74,7 +78,7 @@ export const About = () => {
       {/* Pillars Section */}
       <div style={{ padding: '40px 20px 100px 20px' }}>
         <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <motion.div 
+          <motion.div
             className="grid-3"
             variants={containerVariants}
             initial="hidden"
@@ -168,9 +172,26 @@ export const About = () => {
       </div>
 
       <Footer />
-      
-      {/* Styles details injection */}
+
+      {/* Embedded CSS styles for dynamic light/dark background switching */}
       <style>{`
+        .about-page {
+          background-color: var(--bg-color);
+          background-image: var(--homepage-bg-image, url(${bgiImage}));
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-attachment: fixed;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          transition: background-image 0.4s ease-in-out, background-color 0.4s ease-in-out;
+        }
+
+        .dark-mode .about-page {
+          background-image: var(--homepage-bg-image, url(${bgvImage}));
+        }
+
         @media (max-width: 768px) {
           div[style*="gridTemplateColumns: 1fr 1fr"] {
             grid-template-columns: 1fr !important;

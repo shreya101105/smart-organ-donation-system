@@ -8,6 +8,9 @@ import Register from '../pages/Authentication/Register';
 import ForgotPassword from '../pages/Authentication/ForgotPassword';
 import VerifyOTP from '../pages/Authentication/VerifyOTP';
 import ResetPassword from '../pages/Authentication/ResetPassword';
+import TermsAndConditions from '../pages/Authentication/TermsAndConditions'; // Added
+import PrivacyPolicy from '../pages/Authentication/PrivacyPolicy';         // Added
+
 import About from '../pages/About/About';
 import Services from '../pages/Services/Services';
 import Contact from '../pages/Contact/Contact';
@@ -58,62 +61,66 @@ export const AppRoutes = () => {
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
+      {/* Legal Routes */}
+      <Route path="/terms" element={<TermsAndConditions />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+
       {/* Role-Protected Dashboards */}
-      <Route 
-        path="/patient/dashboard" 
+      <Route
+        path="/patient/dashboard"
         element={
           <ProtectedRoute allowedRole="Patient">
             <PatientDashboard />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/doctor/dashboard" 
+      <Route
+        path="/doctor/dashboard"
         element={
           <ProtectedRoute allowedRole="Doctor">
             <DoctorDashboard />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/donor/dashboard" 
+      <Route
+        path="/donor/dashboard"
         element={
           <ProtectedRoute allowedRole="Donor">
             <DonorDashboard />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/recipient/dashboard" 
+      <Route
+        path="/recipient/dashboard"
         element={
           <ProtectedRoute allowedRole="Recipient">
             <RecipientDashboard />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/hospital/dashboard" 
+      <Route
+        path="/hospital/dashboard"
         element={
           <ProtectedRoute allowedRole="Hospital">
             <HospitalDashboard />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/laboratory/dashboard" 
+      <Route
+        path="/laboratory/dashboard"
         element={
           <ProtectedRoute allowedRole="Laboratory">
             <LaboratoryDashboard />
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/admin/dashboard" 
+      <Route
+        path="/admin/dashboard"
         element={
           <ProtectedRoute allowedRole="Admin">
             <AdminDashboard />
           </ProtectedRoute>
-        } 
+        }
       />
 
       {/* 404 Route */}

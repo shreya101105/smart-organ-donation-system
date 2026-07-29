@@ -1,14 +1,17 @@
 import React, { createContext, useState, useEffect } from "react";
 
+// Background image imports
+import bgiImage from "../components/images/bgi.png";
+import bgvImage from "../components/images/bgv.png";
+
 export const ThemeContext = createContext();
 
 // ======================= DARK THEME =======================
-// ======================= PREMIUM DARK THEME =======================
 const darkTheme = {
   darkMode: true,
 
   // Backgrounds
-  bg: "#071321",                     // Premium Deep Blue
+  bg: "#071321",                    // Premium Deep Blue
   card: "rgba(18,30,52,0.88)",       // Glass Card
 
   // Brand Colors
@@ -26,13 +29,7 @@ const darkTheme = {
 
   // Homepage
   homepageBg: "#071321",
-
-  homepageImage: `
-  radial-gradient(circle at 15% 20%, rgba(0,229,255,0.12), transparent 25%),
-  radial-gradient(circle at 85% 15%, rgba(192,132,252,0.12), transparent 25%),
-  radial-gradient(circle at 50% 90%, rgba(59,130,246,0.10), transparent 30%),
-  linear-gradient(135deg,#071321,#0E1B33,#162848)
-  `,
+  homepageImage: `url(${bgvImage})`,
 
   // Navbar & Footer
   navbar: "rgba(7,19,33,0.82)",
@@ -43,8 +40,7 @@ const darkTheme = {
   shadow: "rgba(0,0,0,.35)",
 };
 
-
-// ======================= LIGHT THEME =======================
+// ======================= LIGHT THEME (DEFAULT) =======================
 const lightTheme = {
   darkMode: false,
 
@@ -67,7 +63,7 @@ const lightTheme = {
 
   // Homepage
   homepageBg: "#F8FAF2",
-  homepageImage: "none",
+  homepageImage: `url(${bgiImage})`,
 
   // Navbar & Footer
   navbar: "rgba(248,250,242,0.95)",
@@ -77,20 +73,12 @@ const lightTheme = {
   glow: "rgba(184,134,11,.18)",
   shadow: "rgba(76,175,80,.10)",
 };
+
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem("smart_organ_theme");
-
-    if (saved) {
-      return JSON.parse(saved);
-    }
-
-    return lightTheme; // Default Theme
-  });
+  // Website open hone par hamesha Light Mode se start hoga (with bgvImage background)
+  const [theme, setTheme] = useState(lightTheme);
 
   useEffect(() => {
-    localStorage.setItem("smart_organ_theme", JSON.stringify(theme));
-
     const root = document.documentElement;
 
     root.style.setProperty("--bg-color", theme.bg);

@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FaUserInjured, FaUserCheck, FaFileContract, FaCalendarCheck, 
-  FaBell, FaSignOutAlt, FaColumns, FaUserMd, FaHospital, FaClinicMedical
+import {
+  FaUserInjured, FaUserCheck, FaFileContract, FaCalendarCheck,
+  FaBell, FaSignOutAlt, FaColumns, FaUserMd, FaHospital, FaClinicMedical, FaCog
 } from 'react-icons/fa';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -11,6 +11,7 @@ import VerifyPrediction from './VerifyPrediction';
 import Reports from './Reports';
 import Appointments from './Appointments';
 import Notifications from './Notifications';
+import Settings from './Settings'; // Imported Settings sub-component
 
 import '../../assets/css/dashboard.css';
 
@@ -44,6 +45,8 @@ export const DoctorDashboard = () => {
         return <Appointments />;
       case 'Notifications':
         return <Notifications />;
+      case 'Settings':
+        return <Settings handleLogout={handleLogout} />;
       default:
         return <OverviewTab setActiveTab={setActiveTab} doc={currentUser} />;
     }
@@ -57,7 +60,7 @@ export const DoctorDashboard = () => {
           <div className="sidebar-logo">
             <FaUserMd /> <span>Doctor Panel</span>
           </div>
-          
+
           <div className="sidebar-profile">
             <div className="sidebar-profile-name">{currentUser.name}</div>
             <div className="sidebar-profile-role">{currentUser.specialization || 'Transplant Specialist'}</div>
@@ -65,7 +68,7 @@ export const DoctorDashboard = () => {
 
           <ul className="sidebar-menu">
             <li className="sidebar-item">
-              <button 
+              <button
                 className={`sidebar-button ${activeTab === 'Overview' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Overview')}
               >
@@ -73,7 +76,7 @@ export const DoctorDashboard = () => {
               </button>
             </li>
             <li className="sidebar-item">
-              <button 
+              <button
                 className={`sidebar-button ${activeTab === 'Patients' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Patients')}
               >
@@ -81,7 +84,7 @@ export const DoctorDashboard = () => {
               </button>
             </li>
             <li className="sidebar-item">
-              <button 
+              <button
                 className={`sidebar-button ${activeTab === 'VerifyPrediction' ? 'active' : ''}`}
                 onClick={() => setActiveTab('VerifyPrediction')}
               >
@@ -89,7 +92,7 @@ export const DoctorDashboard = () => {
               </button>
             </li>
             <li className="sidebar-item">
-              <button 
+              <button
                 className={`sidebar-button ${activeTab === 'Reports' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Reports')}
               >
@@ -97,7 +100,7 @@ export const DoctorDashboard = () => {
               </button>
             </li>
             <li className="sidebar-item">
-              <button 
+              <button
                 className={`sidebar-button ${activeTab === 'Appointments' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Appointments')}
               >
@@ -105,11 +108,19 @@ export const DoctorDashboard = () => {
               </button>
             </li>
             <li className="sidebar-item">
-              <button 
+              <button
                 className={`sidebar-button ${activeTab === 'Notifications' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Notifications')}
               >
                 <FaBell /> Clinical Alerts
+              </button>
+            </li>
+            <li className="sidebar-item">
+              <button
+                className={`sidebar-button ${activeTab === 'Settings' ? 'active' : ''}`}
+                onClick={() => setActiveTab('Settings')}
+              >
+                <FaCog /> Settings
               </button>
             </li>
           </ul>

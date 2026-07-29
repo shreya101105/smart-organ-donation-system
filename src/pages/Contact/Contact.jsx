@@ -8,6 +8,10 @@ import Toast from '../../components/Feedback/Toast';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 
+// Background image imports
+import bgiImage from '../../components/images/bgi.png';
+import bgvImage from '../../components/images/bgv.png';
+
 export const Contact = () => {
   const [form, setForm] = useState({
     name: '',
@@ -29,8 +33,7 @@ export const Contact = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    
-    // Simple validation
+
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = 'Your name is required';
     if (!form.email.trim()) newErrors.email = 'Your email address is required';
@@ -42,7 +45,7 @@ export const Contact = () => {
     }
 
     setLoading(true);
-    
+
     setTimeout(() => {
       setLoading(false);
       setToastOpen(true);
@@ -56,26 +59,27 @@ export const Contact = () => {
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="contact-page">
       <Navbar />
 
       <div className="floating-blob blob-primary" style={{ top: '20%', left: '5%' }} />
       <div className="floating-blob blob-secondary" style={{ bottom: '15%', right: '5%' }} />
 
+      {/* Header Section */}
       <div style={{ padding: '160px 20px 60px 20px', textAlign: 'center' }}>
         <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            style={{ 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              gap: '8px', 
-              background: 'rgba(0, 229, 255, 0.1)', 
-              color: 'var(--primary-color)', 
-              padding: '6px 14px', 
-              borderRadius: '20px', 
-              fontSize: '0.85rem', 
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(0, 229, 255, 0.1)',
+              color: 'var(--primary-color)',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
               fontWeight: '700',
               marginBottom: '24px',
               border: '1px solid rgba(0, 229, 255, 0.2)'
@@ -92,6 +96,7 @@ export const Contact = () => {
         </div>
       </div>
 
+      {/* Form and Info Section */}
       <div style={{ padding: '20px 20px 100px 20px' }}>
         <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '40px' }}>
           {/* Contact Details Card */}
@@ -148,36 +153,36 @@ export const Contact = () => {
           >
             <Card glow style={{ padding: '40px' }}>
               <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-heading)', fontWeight: 700, marginBottom: '24px' }}>Send diagnostic request</h3>
-              
+
               <form onSubmit={handleFormSubmit}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <Input 
-                    label="Your Name" 
-                    name="name" 
-                    value={form.name} 
-                    onChange={handleInputChange} 
+                  <Input
+                    label="Your Name"
+                    name="name"
+                    value={form.name}
+                    onChange={handleInputChange}
                     error={errors.name}
                     required
                   />
-                  <Input 
-                    label="Email Address" 
+                  <Input
+                    label="Email Address"
                     type="email"
-                    name="email" 
-                    value={form.email} 
-                    onChange={handleInputChange} 
+                    name="email"
+                    value={form.email}
+                    onChange={handleInputChange}
                     error={errors.email}
                     required
                   />
                 </div>
-                
-                <Input 
-                  label="Subject" 
-                  name="subject" 
-                  value={form.subject} 
+
+                <Input
+                  label="Subject"
+                  name="subject"
+                  value={form.subject}
                   onChange={handleInputChange}
                 />
 
-                <div className="floating-input-group">
+                <div className="floating-input-group" style={{ marginBottom: '20px' }}>
                   <textarea
                     name="message"
                     rows="5"
@@ -203,9 +208,9 @@ export const Contact = () => {
                   )}
                 </div>
 
-                <Button 
-                  type="submit" 
-                  variant="primary" 
+                <Button
+                  type="submit"
+                  variant="primary"
                   loading={loading}
                   icon={FaPaperPlane}
                   style={{ width: '100%' }}
@@ -220,15 +225,32 @@ export const Contact = () => {
 
       <Footer />
 
-      {/* Floating toast notification */}
-      <Toast 
-        isOpen={toastOpen} 
+      <Toast
+        isOpen={toastOpen}
         onClose={() => setToastOpen(false)}
         type="success"
         message="Your message has been delivered to LifeLink clinical support teams. We will respond within 24 hours."
       />
-      
+
+      {/* Dynamic background switching & responsive styling */}
       <style>{`
+        .contact-page {
+          background-color: var(--bg-color);
+          background-image: var(--homepage-bg-image, url(${bgiImage}));
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-attachment: fixed;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          transition: background-image 0.4s ease-in-out, background-color 0.4s ease-in-out;
+        }
+
+        .dark-mode .contact-page {
+          background-image: var(--homepage-bg-image, url(${bgvImage}));
+        }
+
         @media (max-width: 768px) {
           div[style*="gridTemplateColumns: 1.2fr 1.8fr"] {
             grid-template-columns: 1fr !important;

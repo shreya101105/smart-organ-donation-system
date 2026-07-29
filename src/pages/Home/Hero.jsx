@@ -14,6 +14,11 @@ export const Hero = () => {
           initial={{ opacity: 0, x: -40, filter: 'blur(8px)' }}
           animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            marginLeft: 'auto',
+            paddingLeft: '50px',
+            maxWidth: '90%'
+          }}
         >
           <span style={{
             display: 'inline-block',
@@ -168,6 +173,11 @@ export const Hero = () => {
         }
 
         @media (max-width: 768px) {
+          .hero-content {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+            max-width: 100% !important;
+          }
           .diagnostic-core-outer {
             width: 280px;
             height: 280px;

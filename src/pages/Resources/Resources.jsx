@@ -6,6 +6,10 @@ import Badge from '../../components/Feedback/Badge';
 import Navbar from '../../components/Navbar/Navbar';
 import Footer from '../../components/Footer/Footer';
 
+// Background image imports
+import bgiImage from '../../components/images/bgi.png';
+import bgvImage from '../../components/images/bgv.png';
+
 export const Resources = () => {
   const [activeFAQ, setActiveFAQ] = useState(null);
 
@@ -40,26 +44,27 @@ export const Resources = () => {
   ];
 
   return (
-    <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="resources-page">
       <Navbar />
 
       <div className="floating-blob blob-primary" style={{ top: '15%', left: '15%' }} />
       <div className="floating-blob blob-secondary" style={{ bottom: '25%', right: '15%' }} />
 
+      {/* Header */}
       <div style={{ padding: '160px 20px 60px 20px', textAlign: 'center' }}>
         <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            style={{ 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              gap: '8px', 
-              background: 'rgba(0, 229, 255, 0.1)', 
-              color: 'var(--primary-color)', 
-              padding: '6px 14px', 
-              borderRadius: '20px', 
-              fontSize: '0.85rem', 
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'rgba(0, 229, 255, 0.1)',
+              color: 'var(--primary-color)',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
               fontWeight: '700',
               marginBottom: '24px',
               border: '1px solid rgba(0, 229, 255, 0.2)'
@@ -93,7 +98,7 @@ export const Resources = () => {
               <p style={{ fontSize: '0.9rem', color: 'var(--muted-color)', marginBottom: '20px', lineHeight: '1.5' }}>
                 Blood compatibility is the first critical gate in transplant evaluations. A mismatched blood group results in immediate vascular rejection.
               </p>
-              
+
               <div style={{ overflowX: 'auto', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
                   <thead>
@@ -130,7 +135,7 @@ export const Resources = () => {
                   <div style={{ fontSize: '1.8rem', color: '#00FFD1', display: 'flex' }}><FaHospitalAlt /></div>
                   <h3 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-heading)', fontWeight: 700 }}>Legal & Regulatory Framework</h3>
                 </div>
-                
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {regulations.map((reg, index) => (
                     <div key={index} style={{ borderBottom: index < regulations.length - 1 ? '1px solid var(--border-color)' : 'none', paddingBottom: index < regulations.length - 1 ? '16px' : '0' }}>
@@ -167,7 +172,7 @@ export const Resources = () => {
                         style={{
                           width: '100%',
                           display: 'flex',
-                          justifyContent: 'space-between',
+                          justify: 'space-between',
                           alignItems: 'center',
                           padding: '16px 20px',
                           background: 'rgba(255,255,255,0.01)',
@@ -218,8 +223,26 @@ export const Resources = () => {
       </div>
 
       <Footer />
-      
+
+      {/* Dynamic background switching & responsive styling */}
       <style>{`
+        .resources-page {
+          background-color: var(--bg-color);
+          background-image: var(--homepage-bg-image, url(${bgiImage}));
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          background-attachment: fixed;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          transition: background-image 0.4s ease-in-out, background-color 0.4s ease-in-out;
+        }
+
+        .dark-mode .resources-page {
+          background-image: var(--homepage-bg-image, url(${bgvImage}));
+        }
+
         @media (max-width: 992px) {
           div[style*="gridTemplateColumns: 1.6fr 1.4fr"] {
             grid-template-columns: 1fr !important;
