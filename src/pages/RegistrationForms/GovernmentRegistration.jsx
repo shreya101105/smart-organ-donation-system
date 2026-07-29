@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaCloudUploadAlt, FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaCloudUploadAlt, FaSave, FaEye, FaEyeSlash, FaExclamationCircle } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { validateRegistrationForm } from '../../utils/validators';
 
@@ -38,36 +38,101 @@ export const GovernmentRegistration = () => {
         : true;
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+
+        // Clear errors dynamically as the user types/selects
+        if (errors[name] || (name === 'officerName' && errors.name)) {
+            setErrors((prev) => ({ ...prev, [name]: null, name: null }));
+        }
     };
 
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
             setFormData({ ...formData, [e.target.name]: file.name });
+            if (errors[e.target.name]) {
+                setErrors((prev) => ({ ...prev, [e.target.name]: null }));
+            }
         }
     };
+
+    // Helper function for dynamic red border and background glow
+    const getInputStyle = (hasError, extraPadding = false) => ({
+        width: '100%',
+        padding: extraPadding ? '10px 40px 10px 12px' : '10px 12px',
+        borderRadius: '8px',
+        outline: 'none',
+        transition: 'all 0.25s ease',
+        border: hasError ? '2px solid #ef4444' : '1px solid #cbd5e1',
+        backgroundColor: hasError ? 'rgba(239, 68, 68, 0.06)' : '#ffffff',
+        boxShadow: hasError ? '0 0 10px rgba(239, 68, 68, 0.25)' : 'none',
+        color: '#1e293b'
+    });
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setErrors({});
         setErrorMsg('');
 
+        let customErrors = {};
+
+        // 1. Officer Name Validation
+        if (!formData.officerName.trim()) {
+            customErrors.officerName = 'Authorized Officer Name is required.';
+            customErrors.name = 'Authorized Officer Name is required.';
+        }
+
+        // 2. Official Email Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!formData.email.trim()) {
+            customErrors.email = 'Official Email Address is required.';
+        } else if (!emailRegex.test(formData.email.trim())) {
+            customErrors.email = 'Please enter a valid email address.';
+        }
+
+        // 3. Department Validation
+        if (!formData.department.trim()) {
+            customErrors.department = 'Government Department / Authority is required.';
+        }
+
+        // 4. Designation Validation
+        if (!formData.designation.trim()) {
+            customErrors.designation = 'Official Designation is required.';
+        }
+
+        // 5. Govt ID Number Validation
+        if (!formData.govtIdNumber.trim()) {
+            customErrors.govtIdNumber = 'Government ID / Service Number is required.';
+        }
+
+        // 6. Jurisdiction Region Validation
+        if (!formData.jurisdictionRegion) {
+            customErrors.jurisdictionRegion = 'Jurisdiction Region selection is required.';
+        }
+
+        // 7. Authorization Letter File Check
+        if (!formData.authorizationLetter) {
+            customErrors.authorizationLetter = 'Authorization Letter or Official ID Badge document is required.';
+        }
+
+        // 8. Password Match & Strength Checks
         if (passwordIsWeak) {
-            setErrorMsg('Please enter a stronger password before proceeding.');
-            return;
+            customErrors.password = 'Weak password! Must be at least 8 chars with letters & numbers.';
         }
 
         if (formData.password !== formData.confirmPassword) {
-            setErrorMsg('Passwords do not match.');
-            return;
+            customErrors.confirmPassword = 'Passwords do not match.';
         }
 
+        // 9. External Validator Integration
         const submissionData = { ...formData, name: formData.officerName };
+        const validation = validateRegistrationForm ? validateRegistrationForm(submissionData, 'Government') : { isValid: true, errors: {} };
+        const mergedErrors = { ...validation.errors, ...customErrors };
 
-        const validation = validateRegistrationForm ? validateRegistrationForm(submissionData, 'Government') : { isValid: true };
-        if (!validation.isValid) {
-            setErrors(validation.errors);
+        if (Object.keys(mergedErrors).length > 0) {
+            setErrors(mergedErrors);
+            setErrorMsg('Please resolve all highlighted red fields before submitting.');
             return;
         }
 
@@ -75,10 +140,10 @@ export const GovernmentRegistration = () => {
         setTimeout(() => {
             const result = register ? register(submissionData, 'Government') : { success: true };
             setLoading(false);
-            if (result.success) {
+            if (result?.success) {
                 navigate('/government/dashboard');
             } else {
-                setErrorMsg(result.message || 'Registration failed');
+                setErrorMsg(result?.message || 'Registration failed. Please try again.');
             }
         }, 1000);
     };
@@ -86,21 +151,29 @@ export const GovernmentRegistration = () => {
     return (
         <form
             onSubmit={handleSubmit}
+            noValidate /* Bypasses browser native tooltips */
             className="form-grid"
             style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '600px', margin: '0 auto' }}
         >
+            {/* Top Error Alert Banner */}
             {errorMsg && (
                 <div
                     className="alert alert-danger"
                     style={{
                         color: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        padding: '10px 14px',
+                        backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                        border: '1px solid #ef4444',
+                        padding: '12px 16px',
                         borderRadius: '8px',
-                        fontSize: '0.9rem'
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
                     }}
                 >
-                    {errorMsg}
+                    <FaExclamationCircle style={{ fontSize: '1.1rem', flexShrink: 0 }} />
+                    <span>{errorMsg}</span>
                 </div>
             )}
 
@@ -114,9 +187,13 @@ export const GovernmentRegistration = () => {
                     placeholder="e.g. Inspector General Vijay Sharma"
                     value={formData.officerName}
                     onChange={handleChange}
-                    required
+                    style={getInputStyle(errors.officerName || errors.name)}
                 />
-                {errors.name && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.name}</span>}
+                {(errors.officerName || errors.name) && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.officerName || errors.name}
+                    </span>
+                )}
             </div>
 
             {/* 2. Official Email Address */}
@@ -129,9 +206,13 @@ export const GovernmentRegistration = () => {
                     placeholder="e.g. officer@health.gov.in"
                     value={formData.email}
                     onChange={handleChange}
-                    required
+                    style={getInputStyle(errors.email)}
                 />
-                {errors.email && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.email}</span>}
+                {errors.email && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.email}
+                    </span>
+                )}
             </div>
 
             {/* 3. Password Field */}
@@ -145,8 +226,7 @@ export const GovernmentRegistration = () => {
                         placeholder="Min 8 chars (include letters & numbers)"
                         value={formData.password}
                         onChange={handleChange}
-                        style={{ paddingRight: '40px', width: '100%' }}
-                        required
+                        style={getInputStyle(errors.password || passwordIsWeak, true)}
                     />
                     <button
                         type="button"
@@ -170,11 +250,15 @@ export const GovernmentRegistration = () => {
                     </button>
                 </div>
                 {passwordIsWeak && (
-                    <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px', fontWeight: '500' }}>
+                    <span style={{ color: '#f59e0b', fontSize: '0.75rem', marginTop: '4px', fontWeight: '500' }}>
                         ⚠️ Weak password! Must be at least 8 characters and contain both letters and numbers.
                     </span>
                 )}
-                {errors.password && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.password}</span>}
+                {errors.password && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.password}
+                    </span>
+                )}
             </div>
 
             {/* 4. Confirm Password Field */}
@@ -188,8 +272,7 @@ export const GovernmentRegistration = () => {
                         placeholder="Re-enter password"
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        style={{ paddingRight: '40px', width: '100%' }}
-                        required
+                        style={getInputStyle(errors.confirmPassword || !passwordsMatch, true)}
                     />
                     <button
                         type="button"
@@ -212,9 +295,9 @@ export const GovernmentRegistration = () => {
                         {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                 </div>
-                {!passwordsMatch && (
-                    <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>
-                        ❌ Passwords do not match
+                {(!passwordsMatch || errors.confirmPassword) && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.confirmPassword || 'Passwords do not match'}
                     </span>
                 )}
             </div>
@@ -229,9 +312,13 @@ export const GovernmentRegistration = () => {
                     placeholder="e.g. Directorate of Health Services / NOTTO"
                     value={formData.department}
                     onChange={handleChange}
-                    required
+                    style={getInputStyle(errors.department)}
                 />
-                {errors.department && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.department}</span>}
+                {errors.department && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.department}
+                    </span>
+                )}
             </div>
 
             {/* 6. Designation */}
@@ -244,9 +331,13 @@ export const GovernmentRegistration = () => {
                     placeholder="e.g. Senior Medical Officer / Compliance Lead"
                     value={formData.designation}
                     onChange={handleChange}
-                    required
+                    style={getInputStyle(errors.designation)}
                 />
-                {errors.designation && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.designation}</span>}
+                {errors.designation && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.designation}
+                    </span>
+                )}
             </div>
 
             {/* 7. Government ID */}
@@ -259,9 +350,13 @@ export const GovernmentRegistration = () => {
                     placeholder="Official Employee / Govt Identification Code"
                     value={formData.govtIdNumber}
                     onChange={handleChange}
-                    required
+                    style={getInputStyle(errors.govtIdNumber)}
                 />
-                {errors.govtIdNumber && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.govtIdNumber}</span>}
+                {errors.govtIdNumber && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.govtIdNumber}
+                    </span>
+                )}
             </div>
 
             {/* 8. Jurisdiction */}
@@ -272,7 +367,7 @@ export const GovernmentRegistration = () => {
                     className="form-select"
                     value={formData.jurisdictionRegion}
                     onChange={handleChange}
-                    required
+                    style={getInputStyle(errors.jurisdictionRegion)}
                 >
                     <option value="">Select Jurisdiction</option>
                     <option value="National">National Level</option>
@@ -282,15 +377,31 @@ export const GovernmentRegistration = () => {
                     <option value="West Zone">West Zone</option>
                     <option value="Central Zone">Central Zone</option>
                 </select>
-                {errors.jurisdictionRegion && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.jurisdictionRegion}</span>}
+                {errors.jurisdictionRegion && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.jurisdictionRegion}
+                    </span>
+                )}
             </div>
 
             {/* 9. Upload Authorization */}
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                 <label className="form-label">Upload Authorization Letter / Official ID Badge *</label>
-                <label className="file-upload-input" style={{ width: '100%', boxSizing: 'border-box' }}>
-                    <FaCloudUploadAlt className="file-upload-icon" />
-                    <span style={{ fontSize: '0.8rem', display: 'block', marginTop: '4px' }}>
+                <label
+                    className="file-upload-input"
+                    style={{
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        border: errors.authorizationLetter ? '2px dashed #ef4444' : '1px dashed #cbd5e1',
+                        backgroundColor: errors.authorizationLetter ? 'rgba(239, 68, 68, 0.05)' : 'transparent',
+                        padding: '16px',
+                        borderRadius: '8px',
+                        textAlign: 'center',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <FaCloudUploadAlt className="file-upload-icon" style={{ fontSize: '1.5rem', color: errors.authorizationLetter ? '#ef4444' : '#64748b' }} />
+                    <span style={{ fontSize: '0.8rem', display: 'block', marginTop: '4px', color: errors.authorizationLetter ? '#ef4444' : 'inherit' }}>
                         {formData.authorizationLetter ? formData.authorizationLetter : 'Upload official clearance credential (PDF/Image)'}
                     </span>
                     <input
@@ -299,17 +410,30 @@ export const GovernmentRegistration = () => {
                         accept=".pdf,.png,.jpg,.jpeg"
                         style={{ display: 'none' }}
                         onChange={handleFileUpload}
-                        required
                     />
                 </label>
+                {errors.authorizationLetter && (
+                    <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+                        <FaExclamationCircle /> {errors.authorizationLetter}
+                    </span>
+                )}
             </div>
 
             {/* Submit Button */}
             <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={loading || !passwordsMatch || passwordIsWeak}
-                style={{ marginTop: '10px', width: '100%', padding: '12px' }}
+                disabled={loading}
+                style={{
+                    marginTop: '10px',
+                    width: '100%',
+                    padding: '12px',
+                    backgroundColor: '#2563eb',
+                    color: '#ffffff',
+                    fontWeight: '600',
+                    borderRadius: '8px',
+                    cursor: loading ? 'not-allowed' : 'pointer'
+                }}
             >
                 {loading ? 'Submitting registration...' : <><FaSave /> Register as Government Officer</>}
             </button>

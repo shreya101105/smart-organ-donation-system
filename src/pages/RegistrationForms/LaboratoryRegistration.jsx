@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaCloudUploadAlt, FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaCloudUploadAlt, FaSave, FaEye, FaEyeSlash, FaExclamationCircle } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { validateRegistrationForm } from '../../utils/validators';
 
@@ -38,48 +38,112 @@ export const LaboratoryRegistration = () => {
     : true;
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Clear error dynamically as user types
+    if (errors[name] || (name === 'laboratoryName' && errors.name)) {
+      setErrors((prev) => ({ ...prev, [name]: null, name: null }));
+    }
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setFormData({ ...formData, [e.target.name]: file.name });
+      if (errors[e.target.name]) {
+        setErrors((prev) => ({ ...prev, [e.target.name]: null }));
+      }
     }
   };
+
+  // Dynamic Red Alert Box styling helper
+  const getInputStyle = (hasError, extraPadding = false) => ({
+    width: '100%',
+    padding: extraPadding ? '10px 40px 10px 12px' : '10px 12px',
+    borderRadius: '8px',
+    outline: 'none',
+    transition: 'all 0.25s ease',
+    border: hasError ? '2px solid #ef4444' : '1px solid #cbd5e1',
+    backgroundColor: hasError ? 'rgba(239, 68, 68, 0.06)' : '#ffffff',
+    boxShadow: hasError ? '0 0 10px rgba(239, 68, 68, 0.25)' : 'none',
+    color: '#1e293b'
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setErrors({});
     setErrorMsg('');
 
+    let customErrors = {};
+
+    // 1. Laboratory Name Validation
+    if (!formData.laboratoryName.trim()) {
+      customErrors.laboratoryName = 'Laboratory Name is required.';
+      customErrors.name = 'Laboratory Name is required.';
+    }
+
+    // 2. Official Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      customErrors.email = 'Official Email Address is required.';
+    } else if (!emailRegex.test(formData.email.trim())) {
+      customErrors.email = 'Please enter a valid email address.';
+    }
+
+    // 3. License Registration Number Check
+    if (!formData.licenseNumber.trim()) {
+      customErrors.licenseNumber = 'License Registration Number is required.';
+    }
+
+    // 4. Chief Pathologist Name Check
+    if (!formData.chiefPathologist.trim()) {
+      customErrors.chiefPathologist = 'Chief Pathologist Name is required.';
+    }
+
+    // 5. Services Offered Validation
+    if (!formData.services.trim()) {
+      customErrors.services = 'Diagnostic Services details are required.';
+    }
+
+    // 6. Physical Address Check
+    if (!formData.address.trim()) {
+      customErrors.address = 'Laboratory Physical Address is required.';
+    }
+
+    // 7. License Certificate Upload Check
+    if (!formData.licenseFile) {
+      customErrors.licenseFile = 'Diagnostic License Certificate file is required.';
+    }
+
+    // 8. Password Match & Strength Validation
     if (passwordIsWeak) {
-      setErrorMsg('Please enter a stronger password before proceeding.');
-      return;
+      customErrors.password = 'Weak password! Use at least 8 chars with letters & numbers.';
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setErrorMsg('Passwords do not match.');
-      return;
+      customErrors.confirmPassword = 'Passwords do not match.';
     }
 
-    // Map to name field
+    // 9. External Validator Integration
     const submissionData = { ...formData, name: formData.laboratoryName };
+    const validation = validateRegistrationForm ? validateRegistrationForm(submissionData, 'Laboratory') : { isValid: true, errors: {} };
+    const mergedErrors = { ...validation.errors, ...customErrors };
 
-    const validation = validateRegistrationForm(submissionData, 'Laboratory');
-    if (!validation.isValid) {
-      setErrors(validation.errors);
+    if (Object.keys(mergedErrors).length > 0) {
+      setErrors(mergedErrors);
+      setErrorMsg('Please resolve all highlighted red fields before submitting.');
       return;
     }
 
     setLoading(true);
     setTimeout(() => {
-      const result = register(submissionData, 'Laboratory');
+      const result = register ? register(submissionData, 'Laboratory') : { success: true };
       setLoading(false);
-      if (result.success) {
+      if (result?.success) {
         navigate('/laboratory/dashboard');
       } else {
-        setErrorMsg(result.message);
+        setErrorMsg(result?.message || 'Registration failed. Please try again.');
       }
     }, 1000);
   };
@@ -87,6 +151,7 @@ export const LaboratoryRegistration = () => {
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate /* Prevents browser native tooltips */
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -96,18 +161,25 @@ export const LaboratoryRegistration = () => {
         margin: '0 auto'
       }}
     >
+      {/* Top Error Alert Banner */}
       {errorMsg && (
         <div
           className="alert alert-danger"
           style={{
             color: '#ef4444',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            padding: '10px 14px',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid #ef4444',
+            padding: '12px 16px',
             borderRadius: '8px',
-            fontSize: '0.9rem'
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}
         >
-          {errorMsg}
+          <FaExclamationCircle style={{ fontSize: '1.1rem', flexShrink: 0 }} />
+          <span>{errorMsg}</span>
         </div>
       )}
 
@@ -121,9 +193,13 @@ export const LaboratoryRegistration = () => {
           placeholder="e.g. Metro Diagnostics"
           value={formData.laboratoryName}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.laboratoryName || errors.name)}
         />
-        {errors.name && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.name}</span>}
+        {(errors.laboratoryName || errors.name) && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.laboratoryName || errors.name}
+          </span>
+        )}
       </div>
 
       {/* 2. Email Address */}
@@ -133,11 +209,16 @@ export const LaboratoryRegistration = () => {
           type="email"
           name="email"
           className="form-input"
+          placeholder="e.g. contact@metrodiagnostics.com"
           value={formData.email}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.email)}
         />
-        {errors.email && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.email}</span>}
+        {errors.email && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.email}
+          </span>
+        )}
       </div>
 
       {/* 3. Password Field */}
@@ -151,8 +232,7 @@ export const LaboratoryRegistration = () => {
             placeholder="Min 8 chars (include letters & numbers)"
             value={formData.password}
             onChange={handleChange}
-            style={{ paddingRight: '40px', width: '100%' }}
-            required
+            style={getInputStyle(errors.password || passwordIsWeak, true)}
           />
           <button
             type="button"
@@ -176,11 +256,15 @@ export const LaboratoryRegistration = () => {
           </button>
         </div>
         {passwordIsWeak && (
-          <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px', fontWeight: '500' }}>
+          <span style={{ color: '#f59e0b', fontSize: '0.75rem', marginTop: '4px', fontWeight: '500' }}>
             ⚠️ Weak password! Must be at least 8 characters and contain both letters and numbers.
           </span>
         )}
-        {errors.password && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.password}</span>}
+        {errors.password && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.password}
+          </span>
+        )}
       </div>
 
       {/* 4. Confirm Password Field */}
@@ -194,8 +278,7 @@ export const LaboratoryRegistration = () => {
             placeholder="Re-enter password"
             value={formData.confirmPassword}
             onChange={handleChange}
-            style={{ paddingRight: '40px', width: '100%' }}
-            required
+            style={getInputStyle(errors.confirmPassword || !passwordsMatch, true)}
           />
           <button
             type="button"
@@ -218,9 +301,9 @@ export const LaboratoryRegistration = () => {
             {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
-        {!passwordsMatch && (
-          <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>
-            ❌ Passwords do not match
+        {(!passwordsMatch || errors.confirmPassword) && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.confirmPassword || 'Passwords do not match'}
           </span>
         )}
       </div>
@@ -235,9 +318,13 @@ export const LaboratoryRegistration = () => {
           placeholder="e.g. LAB-LIC-775"
           value={formData.licenseNumber}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.licenseNumber)}
         />
-        {errors.licenseNumber && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.licenseNumber}</span>}
+        {errors.licenseNumber && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.licenseNumber}
+          </span>
+        )}
       </div>
 
       {/* 6. Chief Pathologist */}
@@ -250,9 +337,13 @@ export const LaboratoryRegistration = () => {
           placeholder="Pathologist in charge name"
           value={formData.chiefPathologist}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.chiefPathologist)}
         />
-        {errors.chiefPathologist && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.chiefPathologist}</span>}
+        {errors.chiefPathologist && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.chiefPathologist}
+          </span>
+        )}
       </div>
 
       {/* 7. Services Offered */}
@@ -265,9 +356,13 @@ export const LaboratoryRegistration = () => {
           placeholder="Detail diagnostic procedures provided"
           value={formData.services}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.services)}
         ></textarea>
-        {errors.services && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.services}</span>}
+        {errors.services && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.services}
+          </span>
+        )}
       </div>
 
       {/* 8. Laboratory Physical Address */}
@@ -277,19 +372,36 @@ export const LaboratoryRegistration = () => {
           name="address"
           className="form-textarea"
           rows="3"
+          placeholder="Enter complete facility street address..."
           value={formData.address}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.address)}
         ></textarea>
-        {errors.address && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.address}</span>}
+        {errors.address && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.address}
+          </span>
+        )}
       </div>
 
       {/* 9. Upload Diagnostic License Certificate */}
       <div className="form-group" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
         <label className="form-label">Upload Diagnostic License Certificate *</label>
-        <label className="file-upload-input" style={{ width: '100%', boxSizing: 'border-box' }}>
-          <FaCloudUploadAlt className="file-upload-icon" />
-          <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '4px' }}>
+        <label
+          className="file-upload-input"
+          style={{
+            width: '100%',
+            boxSizing: 'border-box',
+            border: errors.licenseFile ? '2px dashed #ef4444' : '1px dashed #cbd5e1',
+            backgroundColor: errors.licenseFile ? 'rgba(239, 68, 68, 0.05)' : 'transparent',
+            padding: '16px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            cursor: 'pointer'
+          }}
+        >
+          <FaCloudUploadAlt className="file-upload-icon" style={{ fontSize: '1.5rem', color: errors.licenseFile ? '#ef4444' : '#64748b' }} />
+          <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '4px', color: errors.licenseFile ? '#ef4444' : 'inherit' }}>
             {formData.licenseFile ? formData.licenseFile : 'Upload regulatory license (PDF)'}
           </span>
           <input
@@ -298,17 +410,30 @@ export const LaboratoryRegistration = () => {
             accept=".pdf"
             style={{ display: 'none' }}
             onChange={handleFileUpload}
-            required
           />
         </label>
+        {errors.licenseFile && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.licenseFile}
+          </span>
+        )}
       </div>
 
       {/* Submit Button */}
       <button
         type="submit"
         className="btn btn-primary"
-        disabled={loading || !passwordsMatch || passwordIsWeak}
-        style={{ marginTop: '10px', width: '100%', padding: '12px' }}
+        disabled={loading}
+        style={{
+          marginTop: '10px',
+          width: '100%',
+          padding: '12px',
+          backgroundColor: '#2563eb',
+          color: '#ffffff',
+          fontWeight: '600',
+          borderRadius: '8px',
+          cursor: loading ? 'not-allowed' : 'pointer'
+        }}
       >
         {loading ? 'Submitting registration...' : <><FaSave /> Register Laboratory</>}
       </button>

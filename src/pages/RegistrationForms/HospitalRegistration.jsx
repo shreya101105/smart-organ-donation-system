@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaCloudUploadAlt, FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaCloudUploadAlt, FaSave, FaEye, FaEyeSlash, FaExclamationCircle } from 'react-icons/fa';
 import { AuthContext } from '../../context/AuthContext';
 import { HOSPITAL_TYPES } from '../../utils/constants';
 import { validateRegistrationForm } from '../../utils/validators';
@@ -29,7 +29,7 @@ export const HospitalRegistration = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Helper to check password strength
+  // Helper to check password strength (Min 8 chars, 1 letter, 1 number)
   const checkPasswordStrength = (pass) => {
     if (!pass) return null;
     const isWeak = pass.length < 8 || !/\d/.test(pass) || !/[a-zA-Z]/.test(pass);
@@ -42,43 +42,123 @@ export const HospitalRegistration = () => {
     : true;
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Clear error as soon as user types
+    if (errors[name] || (name === 'hospitalName' && errors.name)) {
+      setErrors((prev) => ({ ...prev, [name]: null, name: null }));
+    }
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setFormData({ ...formData, [e.target.name]: file.name });
+      if (errors[e.target.name]) {
+        setErrors((prev) => ({ ...prev, [e.target.name]: null }));
+      }
     }
   };
+
+  // Helper function for Dynamic Red Alert Box styling
+  const getInputStyle = (hasError, extraPadding = false) => ({
+    width: '100%',
+    padding: extraPadding ? '10px 40px 10px 12px' : '10px 12px',
+    borderRadius: '8px',
+    outline: 'none',
+    transition: 'all 0.25s ease',
+    border: hasError ? '2px solid #ef4444' : '1px solid #cbd5e1',
+    backgroundColor: hasError ? 'rgba(239, 68, 68, 0.06)' : '#ffffff',
+    boxShadow: hasError ? '0 0 10px rgba(239, 68, 68, 0.25)' : 'none',
+    color: '#1e293b'
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setErrors({});
     setErrorMsg('');
 
-    if (formData.password !== formData.confirmPassword) {
-      setErrorMsg('Passwords do not match.');
-      return;
+    let customErrors = {};
+
+    // 1. Hospital Name Validation
+    if (!formData.hospitalName.trim()) {
+      customErrors.hospitalName = 'Hospital Name is required.';
+      customErrors.name = 'Hospital Name is required.';
     }
 
-    // Map to name field
-    const submissionData = { ...formData, name: formData.hospitalName };
+    // 2. Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      customErrors.email = 'Email Address is required.';
+    } else if (!emailRegex.test(formData.email.trim())) {
+      customErrors.email = 'Please enter a valid email address.';
+    }
 
-    const validation = validateRegistrationForm(submissionData, 'Hospital');
-    if (!validation.isValid) {
-      setErrors(validation.errors);
+    // 3. Hospital Type Check
+    if (!formData.hospitalType) {
+      customErrors.hospitalType = 'Please select a Hospital Type.';
+    }
+
+    // 4. Registration Number Check
+    if (!formData.registrationNumber.trim()) {
+      customErrors.registrationNumber = 'Registration / Certificate Number is required.';
+    }
+
+    // 5. Address Validation
+    if (!formData.address.trim()) {
+      customErrors.address = 'Physical Address is required.';
+    }
+
+    // 6. City & State Check
+    if (!formData.city.trim()) {
+      customErrors.city = 'City is required.';
+    }
+    if (!formData.state.trim()) {
+      customErrors.state = 'State is required.';
+    }
+
+    // 7. PIN Code Validation (Strict 6 Digits)
+    const pinCodeRegex = /^[1-9][0-9]{5}$/;
+    if (!formData.pinCode.trim()) {
+      customErrors.pinCode = 'Postal PIN Code is required.';
+    } else if (!pinCodeRegex.test(formData.pinCode.trim())) {
+      customErrors.pinCode = 'Enter a valid 6-digit PIN code.';
+    }
+
+    // 8. Certificate File Check
+    if (!formData.certFile) {
+      customErrors.certFile = 'Hospital Registration Certificate file is required.';
+    }
+
+    // 9. Password Validation
+    if (passwordWarning) {
+      customErrors.password = passwordWarning;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      customErrors.confirmPassword = 'Passwords do not match.';
+    }
+
+    // 10. External Validator Integration
+    const submissionData = { ...formData, name: formData.hospitalName };
+    const validation = validateRegistrationForm ? validateRegistrationForm(submissionData, 'Hospital') : { isValid: true, errors: {} };
+    const mergedErrors = { ...validation.errors, ...customErrors };
+
+    if (Object.keys(mergedErrors).length > 0) {
+      setErrors(mergedErrors);
+      setErrorMsg('Please resolve all highlighted red fields before submitting.');
       return;
     }
 
     setLoading(true);
     setTimeout(() => {
-      const result = register(submissionData, 'Hospital');
+      const result = register ? register(submissionData, 'Hospital') : { success: true };
       setLoading(false);
-      if (result.success) {
+      if (result?.success) {
         navigate('/hospital/dashboard');
       } else {
-        setErrorMsg(result.message);
+        setErrorMsg(result?.message || 'Registration failed. Please try again.');
       }
     }, 1000);
   };
@@ -86,6 +166,7 @@ export const HospitalRegistration = () => {
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate /* Bypasses default HTML tooltips */
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -95,12 +176,25 @@ export const HospitalRegistration = () => {
         margin: '0 auto'
       }}
     >
+      {/* Main Error Banner */}
       {errorMsg && (
         <div
           className="alert alert-danger"
-          style={{ color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '10px 14px', borderRadius: '8px', fontSize: '0.9rem' }}
+          style={{
+            color: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.12)',
+            border: '1px solid #ef4444',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
         >
-          {errorMsg}
+          <FaExclamationCircle style={{ fontSize: '1.1rem', flexShrink: 0 }} />
+          <span>{errorMsg}</span>
         </div>
       )}
 
@@ -114,9 +208,13 @@ export const HospitalRegistration = () => {
           placeholder="e.g. Apex Multispeciality Hospital"
           value={formData.hospitalName}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.hospitalName || errors.name)}
         />
-        {errors.name && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.name}</span>}
+        {(errors.hospitalName || errors.name) && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.hospitalName || errors.name}
+          </span>
+        )}
       </div>
 
       {/* 2. Email Address */}
@@ -126,11 +224,16 @@ export const HospitalRegistration = () => {
           type="email"
           name="email"
           className="form-input"
+          placeholder="e.g. info@apexhospital.com"
           value={formData.email}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.email)}
         />
-        {errors.email && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.email}</span>}
+        {errors.email && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.email}
+          </span>
+        )}
       </div>
 
       {/* 3. Password */}
@@ -141,11 +244,10 @@ export const HospitalRegistration = () => {
             type={showPassword ? 'text' : 'password'}
             name="password"
             className="form-input"
-            placeholder="Min 8 characters"
+            placeholder="Min 8 chars (letters & numbers)"
             value={formData.password}
             onChange={handleChange}
-            style={{ paddingRight: '40px', width: '100%' }}
-            required
+            style={getInputStyle(errors.password || passwordWarning, true)}
           />
           <button
             type="button"
@@ -173,7 +275,11 @@ export const HospitalRegistration = () => {
             ⚠️ {passwordWarning}
           </span>
         )}
-        {errors.password && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.password}</span>}
+        {errors.password && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.password}
+          </span>
+        )}
       </div>
 
       {/* 4. Confirm Password */}
@@ -187,8 +293,7 @@ export const HospitalRegistration = () => {
             placeholder="Re-enter password"
             value={formData.confirmPassword}
             onChange={handleChange}
-            style={{ paddingRight: '40px', width: '100%' }}
-            required
+            style={getInputStyle(errors.confirmPassword || !passwordsMatch, true)}
           />
           <button
             type="button"
@@ -211,9 +316,9 @@ export const HospitalRegistration = () => {
             {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
-        {!passwordsMatch && (
-          <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>
-            ❌ Passwords do not match
+        {(!passwordsMatch || errors.confirmPassword) && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.confirmPassword || 'Passwords do not match'}
           </span>
         )}
       </div>
@@ -226,12 +331,16 @@ export const HospitalRegistration = () => {
           className="form-select"
           value={formData.hospitalType}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.hospitalType)}
         >
           <option value="">Select Type</option>
           {HOSPITAL_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
         </select>
-        {errors.hospitalType && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.hospitalType}</span>}
+        {errors.hospitalType && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.hospitalType}
+          </span>
+        )}
       </div>
 
       {/* 6. Registration / Certificate Number */}
@@ -244,9 +353,13 @@ export const HospitalRegistration = () => {
           placeholder="e.g. HOSP-2026-99"
           value={formData.registrationNumber}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.registrationNumber)}
         />
-        {errors.registrationNumber && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.registrationNumber}</span>}
+        {errors.registrationNumber && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.registrationNumber}
+          </span>
+        )}
       </div>
 
       {/* 7. City */}
@@ -256,11 +369,16 @@ export const HospitalRegistration = () => {
           type="text"
           name="city"
           className="form-input"
+          placeholder="e.g. Mumbai"
           value={formData.city}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.city)}
         />
-        {errors.city && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.city}</span>}
+        {errors.city && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.city}
+          </span>
+        )}
       </div>
 
       {/* 8. State */}
@@ -270,11 +388,16 @@ export const HospitalRegistration = () => {
           type="text"
           name="state"
           className="form-input"
+          placeholder="e.g. Maharashtra"
           value={formData.state}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.state)}
         />
-        {errors.state && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.state}</span>}
+        {errors.state && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.state}
+          </span>
+        )}
       </div>
 
       {/* 9. Postal PIN Code */}
@@ -285,12 +408,16 @@ export const HospitalRegistration = () => {
           name="pinCode"
           className="form-input"
           maxLength="6"
-          placeholder="6 digits"
+          placeholder="6 digits (e.g. 400001)"
           value={formData.pinCode}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.pinCode)}
         />
-        {errors.pinCode && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.pinCode}</span>}
+        {errors.pinCode && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.pinCode}
+          </span>
+        )}
       </div>
 
       {/* 10. Physical Address */}
@@ -300,19 +427,36 @@ export const HospitalRegistration = () => {
           name="address"
           className="form-textarea"
           rows="3"
+          placeholder="Full street address..."
           value={formData.address}
           onChange={handleChange}
-          required
+          style={getInputStyle(errors.address)}
         ></textarea>
-        {errors.address && <span style={{ color: '#dc3545', fontSize: '0.75rem', marginTop: '4px' }}>{errors.address}</span>}
+        {errors.address && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.address}
+          </span>
+        )}
       </div>
 
       {/* 11. Upload Registration Certificate */}
       <div className="form-group" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
         <label className="form-label">Upload Registration Certificate *</label>
-        <label className="file-upload-input" style={{ width: '100%', boxSizing: 'border-box' }}>
-          <FaCloudUploadAlt className="file-upload-icon" />
-          <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '4px' }}>
+        <label
+          className="file-upload-input"
+          style={{
+            width: '100%',
+            boxSizing: 'border-box',
+            border: errors.certFile ? '2px dashed #ef4444' : '1px dashed #cbd5e1',
+            backgroundColor: errors.certFile ? 'rgba(239, 68, 68, 0.05)' : 'transparent',
+            padding: '16px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            cursor: 'pointer'
+          }}
+        >
+          <FaCloudUploadAlt className="file-upload-icon" style={{ fontSize: '1.5rem', color: errors.certFile ? '#ef4444' : '#64748b' }} />
+          <span style={{ fontSize: '0.85rem', display: 'block', marginTop: '4px', color: errors.certFile ? '#ef4444' : 'inherit' }}>
             {formData.certFile ? formData.certFile : 'Upload authority registry cert (PDF)'}
           </span>
           <input
@@ -321,17 +465,30 @@ export const HospitalRegistration = () => {
             accept=".pdf"
             style={{ display: 'none' }}
             onChange={handleFileUpload}
-            required
           />
         </label>
+        {errors.certFile && (
+          <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '500' }}>
+            <FaExclamationCircle /> {errors.certFile}
+          </span>
+        )}
       </div>
 
       {/* Submit Button */}
       <button
         type="submit"
         className="btn btn-primary"
-        disabled={loading || !passwordsMatch}
-        style={{ marginTop: '10px', width: '100%', padding: '12px' }}
+        disabled={loading}
+        style={{
+          marginTop: '10px',
+          width: '100%',
+          padding: '12px',
+          backgroundColor: '#2563eb',
+          color: '#ffffff',
+          fontWeight: '600',
+          borderRadius: '8px',
+          cursor: loading ? 'not-allowed' : 'pointer'
+        }}
       >
         {loading ? 'Submitting registration...' : <><FaSave /> Register Hospital</>}
       </button>
