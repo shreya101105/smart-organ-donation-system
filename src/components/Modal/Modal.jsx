@@ -9,6 +9,8 @@ export const Modal = ({
   children,
   size = 'md', // sm, md, lg, xl
   closeOnOverlayClick = true,
+  className = '',
+  style = {}
 }) => {
   useEffect(() => {
     const handleEscape = (e) => {
@@ -39,15 +41,17 @@ export const Modal = ({
             position: 'fixed',
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
+            width: '100dvw',
+            height: '100dvh',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 999,
+            zIndex: 9999,
+            padding: '16px',
+            boxSizing: 'border-box'
           }}
         >
-          {/* Backdrop Blur & Fade */}
+          {/* Backdrop Blur & Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -55,32 +59,38 @@ export const Modal = ({
             onClick={closeOnOverlayClick ? onClose : undefined}
             style={{
               position: 'absolute',
+              top: 0,
+              left: 0,
               width: '100%',
               height: '100%',
-              background: 'rgba(5, 8, 22, 0.75)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
+              background: 'rgba(5, 8, 22, 0.8)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
             }}
           />
 
-          {/* Modal Container */}
+          {/* Modal Card / Bottom Sheet Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="glass-card"
+            className={`glass-card responsive-modal-card ${className}`}
             style={{
-              width: '90%',
-              maxWidth: sizeWidths[size],
-              maxHeight: '90vh',
+              width: '100%',
+              maxWidth: sizeWidths[size] || sizeWidths.md,
+              maxHeight: 'calc(100dvh - 32px)',
               display: 'flex',
               flexDirection: 'column',
-              zIndex: 1000,
-              padding: '0',
+              zIndex: 10000,
+              padding: 0,
               overflow: 'hidden',
-              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 229, 255, 0.15)',
-              border: '1px solid var(--border-color)',
+              borderRadius: '16px',
+              background: 'var(--card-bg, rgba(15, 23, 42, 0.95))',
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 229, 255, 0.12)',
+              border: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
+              position: 'relative',
+              ...style
             }}
           >
             {/* Header */}
@@ -89,16 +99,31 @@ export const Modal = ({
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: '20px 24px',
-                borderBottom: '1px solid var(--border-color)',
+                padding: '16px 20px',
+                borderBottom: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
                 background: 'rgba(255, 255, 255, 0.02)',
+                flexShrink: 0
               }}
             >
-              <h4 style={{ margin: 0, fontSize: '1.2rem', fontFamily: 'var(--font-heading)', color: 'var(--text-color)' }}>
-                {title}
-              </h4>
+              {title && (
+                <h4
+                  style={{
+                    margin: 0,
+                    fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+                    fontFamily: 'var(--font-heading)',
+                    color: 'var(--text-color)',
+                    fontWeight: 700,
+                    paddingRight: '12px',
+                    wordBreak: 'break-word'
+                  }}
+                >
+                  {title}
+                </h4>
+              )}
+
               <button
                 onClick={onClose}
+                aria-label="Close modal"
                 style={{
                   background: 'none',
                   border: 'none',
@@ -108,13 +133,15 @@ export const Modal = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  padding: '6px',
+                  padding: '8px',
                   borderRadius: '50%',
-                  transition: 'all 0.2s',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0,
+                  marginLeft: 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = '#EF4444';
-                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                  e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.color = 'var(--muted-color)';
@@ -125,19 +152,35 @@ export const Modal = ({
               </button>
             </div>
 
-            {/* Content */}
+            {/* Scrollable Content Body */}
             <div
               style={{
-                padding: '24px',
+                padding: 'clamp(16px, 4vw, 24px)',
                 overflowY: 'auto',
-                fontSize: '0.95rem',
+                WebkitOverflowScrolling: 'touch',
+                overscrollBehavior: 'contain',
+                fontSize: 'clamp(0.88rem, 2.5vw, 0.95rem)',
                 lineHeight: '1.6',
                 color: 'var(--text-color)',
+                flexGrow: 1
               }}
             >
               {children}
             </div>
           </motion.div>
+
+          {/* Inline Media Query Fallback for Small Mobile Screen Bottom-Sheet Behaviour */}
+          <style>{`
+            @media (max-width: 600px) {
+              .responsive-modal-card {
+                align-self: flex-end !important;
+                margin-bottom: 0 !important;
+                border-bottom-left-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
+                max-height: 88dvh !important;
+              }
+            }
+          `}</style>
         </div>
       )}
     </AnimatePresence>

@@ -56,54 +56,87 @@ export const Toast = ({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+          transition={{ type: 'spring', damping: 22, stiffness: 320 }}
           style={{
             position: 'fixed',
             bottom: '24px',
             right: '24px',
-            background: 'var(--card-bg, rgba(15, 25, 45, 0.85))',
+            background: 'var(--card-bg, rgba(15, 25, 45, 0.92))',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             border: style.border,
-            boxShadow: `0 10px 30px rgba(0, 0, 0, 0.2), ${style.glow}`,
+            boxShadow: `0 10px 30px rgba(0, 0, 0, 0.25), ${style.glow}`,
             borderRadius: '12px',
-            padding: '16px 20px',
+            padding: '14px 18px',
             display: 'flex',
             alignItems: 'center',
-            gap: '14px',
-            maxWidth: '380px',
+            gap: '12px',
+            maxWidth: 'calc(100vw - 32px)',
+            width: 'max-content',
             minWidth: '280px',
             zIndex: 9999,
+            overflow: 'hidden',
+            boxSizing: 'border-box'
           }}
+          className="toast-notification"
         >
-          <span style={{ color: style.color, display: 'flex', alignItems: 'center', fontSize: '1.25rem' }}>
+          {/* Icon Wrapper */}
+          <span
+            style={{
+              color: style.color,
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '1.25rem',
+              flexShrink: 0
+            }}
+          >
             <Icon />
           </span>
 
-          <div style={{ flexGrow: 1, fontSize: '0.9rem', color: 'var(--text-color)', fontWeight: '500' }}>
+          {/* Toast Message */}
+          <div
+            style={{
+              flexGrow: 1,
+              fontSize: 'clamp(0.85rem, 2.5vw, 0.9rem)',
+              color: 'var(--text-color)',
+              fontWeight: '500',
+              lineHeight: '1.4',
+              wordBreak: 'break-word'
+            }}
+          >
             {message}
           </div>
 
+          {/* Close Touch Target */}
           <button
             onClick={onClose}
+            aria-label="Close notification"
             style={{
               background: 'none',
               border: 'none',
               color: 'var(--muted-color)',
               cursor: 'pointer',
-              fontSize: '0.85rem',
+              fontSize: '0.9rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '4px',
+              padding: '8px',
               borderRadius: '50%',
-              transition: 'background 0.2s',
+              flexShrink: 0,
+              transition: 'background 0.2s, color 0.2s',
+              marginLeft: '4px'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.color = 'var(--text-color)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+              e.currentTarget.style.color = 'var(--muted-color)';
+            }}
           >
             <FaTimes />
           </button>
@@ -122,6 +155,19 @@ export const Toast = ({
               borderRadius: '0 0 0 12px'
             }}
           />
+
+          {/* Optional inline media query via style tag for strict mobile screens */}
+          <style>{`
+            @media (max-width: 480px) {
+              .toast-notification {
+                right: 16px !important;
+                left: 16px !important;
+                bottom: 16px !important;
+                width: calc(100vw - 32px) !important;
+                min-width: unset !important;
+              }
+            }
+          `}</style>
         </motion.div>
       )}
     </AnimatePresence>

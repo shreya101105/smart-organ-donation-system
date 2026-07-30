@@ -5,8 +5,9 @@
   --primary-color: #00E5FF;
   --secondary-color: #2563EB;
   --accent-color: #7C3AED;
-  --bg-color: #c0d5f3;
-  --card-bg: rgba(178, 187, 206, 0.75);
+  --bg-color: #081121;
+  /* Fixed: Dark Theme Navy Background */
+  --card-bg: rgba(17, 24, 39, 0.75);
   --text-color: #FFFFFF;
   --card-text: #f5f6f8;
   --muted-color: #94A3B8;
@@ -20,17 +21,17 @@
 
   /* Global tokens */
   --radius-lg: 18px;
-  /* Required: Rounded corners 18px */
   --radius-md: 18px;
   --radius-sm: 12px;
   --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  /* Required: 500ms transition */
   --transition-fast: all 0.2s ease;
-  --container-width: 1200px;
+  --container-width: 1280px;
 }
 
-/* Base Resets */
-* {
+/* Base Resets & Overflow Controls */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -38,14 +39,47 @@
   scrollbar-color: var(--primary-color) transparent;
 }
 
+html {
+  font-size: 16px;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-color);
   color: var(--text-color);
   line-height: 1.6;
+  width: 100%;
+  min-height: 100vh;
   overflow-x: hidden;
-  /* Required: Smooth 500ms theme transition */
   transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out, border-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+}
+
+/* Fixed: Page Wrapper stretches 100% full width */
+.page-wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Inner Container - Constrains inner content properly without squishing sections */
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Responsive Media Assets */
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* Custom Scrollbar */
@@ -67,7 +101,7 @@ body {
   background: var(--primary-color);
 }
 
-/* Typography */
+/* Typography & Links */
 h1,
 h2,
 h3,
@@ -77,6 +111,18 @@ h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   letter-spacing: -0.02em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  line-height: 1.15;
+}
+
+h2 {
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.25;
 }
 
 a {
@@ -85,26 +131,52 @@ a {
   transition: var(--transition-fast);
 }
 
+/* HERO SECTION SPECIFIC FIXES */
+.hero-section,
+.hero-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+  min-height: 80vh;
+  padding: 40px 0;
+}
+
+.hero-content {
+  flex: 1 1 55%;
+  max-width: 700px;
+}
+
+.hero-visual,
+.hero-image {
+  flex: 1 1 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* Glassmorphism Styles */
 .glass-card {
   background: var(--card-bg);
   backdrop-filter: blur(20px);
-  /* Required: blur 20px */
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  /* Required: Rounded corners 18px */
   box-shadow: 0 8px 32px 0 var(--shadow-color);
   transition: var(--transition-smooth);
 }
 
 .glass-card:hover {
   transform: translateY(-5px);
-  /* Required: moves upward */
   border-color: var(--primary-color);
-  /* Required: border becomes brighter */
   box-shadow: 0 0 25px rgba(0, 229, 255, 0.25), 0 0 50px rgba(37, 99, 235, 0.15);
-  /* Required: blue glow appears */
+}
+
+/* Card inner content mobile responsive helper */
+.glass-card .card-content {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Input Fields Design with Focus Glow */
@@ -220,7 +292,6 @@ a {
 
 .btn-primary:hover {
   transform: translateY(-5px);
-  /* Required: moves upward 5px */
   box-shadow: 0 0 25px var(--primary-color), 0 0 50px rgba(0, 229, 255, 0.25);
 }
 
@@ -263,6 +334,29 @@ a {
   box-shadow: 0 0 15px #EF4444;
 }
 
+/* Button Size Variants */
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  min-height: 36px;
+}
+
+.btn-md {
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  min-height: 44px;
+}
+
+.btn-lg {
+  padding: 16px 28px;
+  font-size: 1.05rem;
+  min-height: 52px;
+}
+
+.btn-full-width {
+  width: 100%;
+}
+
 /* Badges */
 .badge {
   display: inline-block;
@@ -292,7 +386,13 @@ a {
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-/* Grid systems */
+/* Modern Auto-Fitting Responsive Grids */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -350,7 +450,7 @@ a {
   }
 }
 
-/* Global Background meshes */
+/* Global Background Mesh */
 .bg-mesh {
   position: fixed;
   top: 0;
@@ -384,17 +484,105 @@ a {
   color: #10B981;
 }
 
-/* Responsive grid breaks */
+/* Mobile Hamburger Menu Toggle Helper */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* Responsive Breakpoints */
 @media (max-width: 1024px) {
   .grid-4 {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .hero-section,
+  .hero-container {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .navbar-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: var(--card-bg, rgba(7, 19, 33, 0.95));
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    transition: right 0.4s ease;
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+  }
+
+  .navbar-menu.mobile-active {
+    right: 0;
+  }
+
+  .hero-section,
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    padding-top: 60px;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
 
   .grid-3,
-  .grid-2 {
+  .grid-2,
+  .grid-4 {
     grid-template-columns: 1fr;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-lg {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+
+  .glass-card .card-content {
+    padding: 1rem !important;
+  }
+
+  .floating-blob {
+    display: none;
   }
 }

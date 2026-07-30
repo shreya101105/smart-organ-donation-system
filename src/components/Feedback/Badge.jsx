@@ -17,19 +17,29 @@ export const Badge = ({
   const activeClass = badgeClasses[type] || 'badge-info';
 
   return (
-    <span 
+    <span
       className={`badge ${activeClass} ${className}`}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '4px 10px',
-        fontSize: '0.72rem',
+        gap: '0.35em',
+        padding: '0.3em 0.7em',
+        fontSize: 'clamp(0.65rem, 2vw, 0.75rem)',
         fontWeight: '700',
         borderRadius: '40px',
         letterSpacing: '0.04em',
         textTransform: 'uppercase',
         border: '1px solid currentColor',
+        whiteSpace: 'nowrap',
+        lineHeight: '1',
+        maxWidth: '100%',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        flexShrink: 0,
+        boxSizing: 'border-box',
+        verticalAlign: 'middle',
+        transition: 'transform 0.2s ease, opacity 0.2s ease',
         ...style
       }}
     >

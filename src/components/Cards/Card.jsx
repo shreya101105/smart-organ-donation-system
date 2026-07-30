@@ -6,6 +6,7 @@ export const Card = ({
   onClick,
   hoverable = true,
   glow = false,
+  padding = '1.5rem', // Added: Customizable responsive padding prop
   className = '',
   style = {},
   ...props
@@ -15,24 +16,35 @@ export const Card = ({
       onClick={onClick}
       className={`glass-card ${className}`}
       style={{
+        width: '100%', // Ensures full width within grid items/flex boxes
+        maxWidth: '100%', // Prevents horizontal overflow on small screens
         cursor: onClick ? 'pointer' : 'default',
         position: 'relative',
         overflow: 'hidden',
+        boxSizing: 'border-box',
         ...style
       }}
       whileHover={
         hoverable
           ? {
-              y: -8,
-              scale: 1.02,
-              boxShadow: '0 20px 40px rgba(0, 229, 255, 0.15), 0 0 30px rgba(37, 99, 235, 0.1)',
-            }
+            y: -5,
+            scale: 1.01,
+            boxShadow: '0 15px 30px rgba(0, 229, 255, 0.15), 0 0 25px rgba(37, 99, 235, 0.1)',
+          }
           : {}
       }
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      whileTap={
+        hoverable || onClick
+          ? {
+            scale: 0.98,
+            y: 0,
+          }
+          : {}
+      }
+      transition={{ type: 'spring', stiffness: 350, damping: 22 }}
       {...props}
     >
-      {/* Light glow effects */}
+      {/* Light glow effects with GPU acceleration */}
       {glow && (
         <div
           style={{
@@ -44,11 +56,22 @@ export const Card = ({
             background: 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 60%)',
             pointerEvents: 'none',
             zIndex: 0,
+            willChange: 'transform',
           }}
         />
       )}
-      
-      <div style={{ position: 'relative', zIndex: 1 }}>
+
+      {/* Inner Content Wrapper */}
+      <div
+        className="card-content"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: padding,
+          width: '100%',
+          height: '100%'
+        }}
+      >
         {children}
       </div>
     </motion.div>

@@ -12,6 +12,7 @@ export const Button = ({
   disabled = false,
   icon: Icon = null,
   iconPosition = 'left', // left, right
+  fullWidth = false, // Added: Mobile forms/modals ke liye optional full-width prop
   className = '',
   ...props
 }) => {
@@ -25,30 +26,76 @@ export const Button = ({
       type={type}
       onClick={onClick}
       disabled={isDisabled}
-      className={`btn ${variantClass} ${sizeClass} ${className}`}
-      whileHover={!isDisabled ? { scale: 1.03, y: -2 } : {}}
-      whileTap={!isDisabled ? { scale: 0.98, y: 0 } : {}}
+      className={`btn ${variantClass} ${sizeClass} ${fullWidth ? 'btn-full-width' : ''} ${className}`}
+      whileHover={!isDisabled ? { scale: 1.02, y: -2 } : {}}
+      whileTap={!isDisabled ? { scale: 0.97, y: 0 } : {}}
       transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        maxWidth: '100%', // Prevent overflow on small screens
+        opacity: isDisabled ? 0.65 : 1,
+        cursor: isDisabled ? 'not-allowed' : 'pointer',
+        ...props.style
+      }}
       {...props}
     >
       {loading && (
         <motion.span
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-          style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            marginRight: children ? '8px' : '0',
+            flexShrink: 0
+          }}
         >
           <FaSpinner />
         </motion.span>
       )}
 
       {!loading && Icon && iconPosition === 'left' && (
-        <span className="btn-icon left" style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center' }}><Icon /></span>
+        <span
+          className="btn-icon left"
+          style={{
+            marginRight: children ? '8px' : '0',
+            display: 'inline-flex',
+            alignItems: 'center',
+            flexShrink: 0
+          }}
+        >
+          <Icon />
+        </span>
       )}
 
-      <span className="btn-text">{children}</span>
+      {children && (
+        <span
+          className="btn-text"
+          style={{
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: '100%'
+          }}
+        >
+          {children}
+        </span>
+      )}
 
       {!loading && Icon && iconPosition === 'right' && (
-        <span className="btn-icon right" style={{ marginLeft: '8px', display: 'inline-flex', alignItems: 'center' }}><Icon /></span>
+        <span
+          className="btn-icon right"
+          style={{
+            marginLeft: children ? '8px' : '0',
+            display: 'inline-flex',
+            alignItems: 'center',
+            flexShrink: 0
+          }}
+        >
+          <Icon />
+        </span>
       )}
     </motion.button>
   );
